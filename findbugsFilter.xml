@@ -1,0 +1,12 @@
+<!--
+Exclusion Filter for findbugs configuration
+See: http://findbugs.sourceforge.net/manual/filter.html
+-->
+<FindBugsFilter>
+	<!--
+	Ignore all warnings by package
+	<Match>
+		<Package name="com.foo" />
+	</Match>
+	-->
+</FindBugsFilter>

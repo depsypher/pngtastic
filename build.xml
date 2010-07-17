@@ -1,0 +1,120 @@
+<!--
+Pngtastic - PNG image optimizer
+-->
+<project name="pngtastic" default="dist">
+
+	<property file="build.properties" />
+	<property name="pngtastic.version" value="0.3.0" />
+
+	<path id="project.classpath">
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+    <path id="javadoc.classpath">
+        <path refid="project.classpath" />
+    </path>
+
+	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpath="findbugs-1.3.9/lib/findbugs-ant.jar" />
+
+	<!--
+	Clean up
+	-->
+	<target name="clean" description="Removes all generated files">
+		<delete dir="build" quiet="true" />
+	</target>
+
+	<!--
+	Compile the code
+	-->
+	<target name="compile" description="Compiles the code">
+		<mkdir dir="build/pngtastic/classes" />
+		<javac srcdir="src" destdir="build/pngtastic/classes" includeantruntime="false" debug="on" target="1.5">
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+
+	<!--
+	Build the app
+	-->
+	<target name="dist" description="Builds the app" depends="compile">
+		<mkdir dir="build/dist" />
+		<jar destfile="build/dist/pngtastic-${pngtastic.version}.jar">
+			<fileset dir="build/pngtastic/classes" />
+			<manifest>
+				<attribute name="Pngtastic-Version" value="${pngtastic.version}" />
+			</manifest>
+		</jar>
+	</target>
+	
+    <!--
+    Generate javadocs
+    -->
+    <target name="javadoc">
+        <mkdir dir="build/javadoc/api" />
+        <javadoc sourcepath="src" destdir="build/javadoc/api" packagenames="*">
+            <classpath refid="javadoc.classpath" />
+        </javadoc>
+    </target>
+
+	<!--
+	Run the findbugs static analysis on the codebase
+	-->
+	<target name="findbugs" depends="compile">
+		<mkdir dir="build/findbugs" />
+		<findbugs jvmargs="-Xmx256m -XX:MaxPermSize=128m"
+				home="findbugs-1.3.9"
+				output="xml:withMessages"
+				outputFile="build/findbugs/findbugs.xml"
+				excludefilter="findbugsFilter.xml">
+
+			<auxclasspath refid="project.classpath" />
+			<sourcepath path="src/main/java" />
+			<class location="build/pngtastic/classes" />
+		</findbugs>
+
+		<xslt in="build/findbugs/findbugs.xml"
+				style="findbugs-1.3.9/src/xsl/default.xsl"
+				out="build/findbugs/findbugs-default.html" />
+	</target>
+
+	<!--
+	Publish the latest build to googlecode
+	-->
+	<target name="publish" depends="clean, dist">
+		<input message="Publishing to googlecode: continue (y/n)?"
+				validargs="y,n"
+				addproperty="do.publish" />
+
+		<condition property="do.abort">
+			<equals arg1="n" arg2="${do.publish}"/>
+		</condition>
+		<fail if="do.abort">Publishing aborted.</fail>
+
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="lib/ant-googlecode-0.0.2.jar" name="gcupload" />
+		<property file="google.properties" />
+		<gcupload
+				username="${google.username}"
+				password="${google.password}"
+				projectname="pngtastic"
+				filename="build/dist/pngtastic-${pngtastic.version}.jar"
+				targetfilename="pngtastic-${pngtastic.version}.jar"
+				summary="Pngtastic jar version: ${pngtastic.version}"
+				labels="Featured"
+				verbose="true" />
+	</target>
+
+	<!--
+	Run the pngtastic ant task on the included images
+	-->
+	<target name="runtask" depends="dist">
+		<taskdef classname="com.googlecode.pngtastic.ant.PngtasticTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
+		<pngtastic todir="build/images" loglevel="info">
+			<fileset dir="images">
+				<include name="**/*.png" />
+			</fileset>
+		</pngtastic>
+	</target>
+
+</project>
