@@ -1,3 +1,7 @@
+/*
+ * $Id$
+ * $URL$
+ */
 package com.googlecode.pngtastic.core;
 
 /**
