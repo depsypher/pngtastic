@@ -13,7 +13,7 @@ Pngtastic - PNG image optimizer
 	</path>
 	
     <path id="javadoc.classpath">
-        <path refid="project.classpath" />
+		<path refid="project.classpath" />
     </path>
 
 	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpath="findbugs-1.3.9/lib/findbugs-ant.jar" />
@@ -48,15 +48,15 @@ Pngtastic - PNG image optimizer
 		</jar>
 	</target>
 	
-    <!--
-    Generate javadocs
-    -->
-    <target name="javadoc">
-        <mkdir dir="build/javadoc/api" />
-        <javadoc sourcepath="src" destdir="build/javadoc/api" packagenames="*">
-            <classpath refid="javadoc.classpath" />
-        </javadoc>
-    </target>
+	<!--
+	Generate javadocs
+	-->
+	<target name="javadoc">
+		<mkdir dir="build/javadoc/api" />
+		<javadoc sourcepath="src" destdir="build/javadoc/api" packagenames="*">
+			<classpath refid="javadoc.classpath" />
+		</javadoc>
+	</target>
 
 	<!--
 	Run the findbugs static analysis on the codebase
