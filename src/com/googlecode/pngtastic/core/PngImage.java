@@ -1,6 +1,6 @@
 /*
- * $Id: PngImage.java 974 2010-07-17 06:35:53Z ray $
- * $URL: http://svn.kittenmob.com/projects/pngtastic/src/com/googlecode/pngtastic/core/PngImage.java $
+ * $Id$
+ * $URL$
  */
 package com.googlecode.pngtastic.core;
 

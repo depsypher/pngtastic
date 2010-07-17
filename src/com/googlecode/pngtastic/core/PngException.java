@@ -1,6 +1,6 @@
 /*
- * $Id: PngException.java 958 2010-07-14 07:12:55Z ray $
- * $URL: http://svn.kittenmob.com/projects/pngtastic/src/com/googlecode/pngtastic/core/PngException.java $
+ * $Id$
+ * $URL$
  */
 package com.googlecode.pngtastic.core;
 
