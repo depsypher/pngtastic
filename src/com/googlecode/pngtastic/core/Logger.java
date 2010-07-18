@@ -56,4 +56,16 @@ class Logger
 		if (DEBUG.equals(this.logLevel) || INFO.equals(this.logLevel))
 			System.out.println(String.format(format, args));
 	}
+
+	/**
+	 * Write error messages.
+	 * Takes a varags list of args so that string concatenation only happens if the logging level applies.
+	 *
+	 * @param messages
+	 */
+	void error(String format, Object... args)
+	{
+		if (!NONE.equals(this.logLevel))
+			System.out.println(String.format(format, args));
+	}
 }

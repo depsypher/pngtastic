@@ -250,9 +250,9 @@ public class PngOptimizer
 
 				previousRow = row.clone();
 			}
-			catch(PngException e)
+			catch (PngException e)
 			{
-				e.printStackTrace();
+				this.log.error("Error: %s", e.getMessage());
 			}
 		}
 		return rows;
@@ -287,7 +287,7 @@ public class PngOptimizer
 			}
 			catch (PngException e)
 			{
-				this.log.info("Error during filtering: %s", e.getMessage());
+				this.log.error("Error during filtering: %s", e.getMessage());
 			}
 			previousRow = previous;
 			i++;
@@ -505,7 +505,7 @@ public class PngOptimizer
 					}
 					catch (Throwable e)
 					{
-						PngOptimizer.this.log.debug("Uncaught Exception", e);
+						PngOptimizer.this.log.error("Uncaught Exception: %s", e.getMessage());
 					}
 				}
 			}));

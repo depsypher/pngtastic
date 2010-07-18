@@ -113,11 +113,11 @@ public class PngImage
 		}
 		catch (IOException e)
 		{
-			this.log.info("Error: " + e.getMessage());
+			this.log.error("Error: %s", e.getMessage());
 		}
 		catch (PngException e)
 		{
-			this.log.info("Error: " + e.getMessage());
+			this.log.error("Error: %s", e.getMessage());
 		}
 	}
 
