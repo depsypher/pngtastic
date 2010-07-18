@@ -91,7 +91,7 @@ public class Pngtastic
 		}
 
 		String toDir = (options.get("--toDir") == null) ? "." : options.get("--toDir");
-		String fileSuffix = (options.get("--fileSuffix") == null) ? ".pngtastic.png" : options.get("--fileSuffix");
+		String fileSuffix = (options.get("--fileSuffix") == null) ? "" : options.get("--fileSuffix");
 		String logLevel = options.get("--logLevel");
 
 		new Pngtastic(toDir, files, fileSuffix, logLevel);
