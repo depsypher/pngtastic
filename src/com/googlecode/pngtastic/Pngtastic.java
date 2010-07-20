@@ -17,6 +17,7 @@ import com.googlecode.pngtastic.core.PngOptimizer;
  * Optimizes PNG images to reduce filesize
  *
  * @see <a href="http://www.w3.org/TR/PNG">PNG spec</a>
+ * @see <a href="http://optipng.sourceforge.net/pngtech/">PNG related articles</a>
  * @see <a href="http://www.schaik.com/pngsuite/">PNG reference images</a>
  *
  * @author rayvanderborght
