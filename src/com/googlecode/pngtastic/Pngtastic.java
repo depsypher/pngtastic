@@ -25,6 +25,13 @@ import com.googlecode.pngtastic.core.PngOptimizer;
 public class Pngtastic
 {
 	/** */
+	private static final String HELP = "java -jar pngtastic-x.x.x.jar com.googlecode.pngtastic.Pngtastic [options] file1 [file2 ..]\n"
+			+ "Options:\n"
+			+ "  --toDir        the directory where optimized files go (will be created if it doesn't exist)\n"
+			+ "  --fileSuffix   string appended to the optimized files (file.png can become file.png.optimized.png)\n"
+			+ "  --logLevel     the level of logging output (none, debug, info, or error)\n";
+
+	/** */
 	public Pngtastic(String toDir, String[] fileNames, String fileSuffix, String logLevel)
 	{
 		long start = System.currentTimeMillis();
@@ -88,6 +95,7 @@ public class Pngtastic
 		if (files.length == 0)
 		{
 			System.out.println("No files to process");
+			System.out.println(HELP);
 			return;
 		}
 
