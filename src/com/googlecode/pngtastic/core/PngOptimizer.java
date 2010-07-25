@@ -119,10 +119,6 @@ public class PngOptimizer
 		if (image.getInterlace() == 1)
 			return image;
 
-		// FIXME: support greyscale alpha
-		if (image.getColorType() == 4)
-			return image;
-
 		PngImage result = new PngImage(this.log);
 
 		Iterator<PngChunk> itChunks = image.getChunks().iterator();

@@ -74,8 +74,10 @@ public enum PngImageType
 			case 3:
 				return 1;
 
-			case 2:
 			case 4:
+				return 2;
+
+			case 2:
 				return 3;
 
 			case 6:
