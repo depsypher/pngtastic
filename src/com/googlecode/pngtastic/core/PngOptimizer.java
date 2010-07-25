@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -61,12 +61,12 @@ public class PngOptimizer
 	}
 
 	/** */
-	public void optimize(PngImage image, String outputFileName) throws FileNotFoundException, IOException
+	public void optimize(PngImage image, String outputFileName, Integer compressionLevel) throws FileNotFoundException, IOException
 	{
 		this.log.debug("=== OPTIMIZING ===");
 
 		long start = System.currentTimeMillis();
-		PngImage optimized = this.optimize(image);
+		PngImage optimized = this.optimize(image, compressionLevel);
 
 		ByteArrayOutputStream optimizedBytes = new ByteArrayOutputStream();
 		DataOutputStream output = optimized.writeDataOutputStream(optimizedBytes);
@@ -113,7 +113,7 @@ public class PngOptimizer
 	}
 
 	/** */
-	public PngImage optimize(PngImage image) throws IOException
+	public PngImage optimize(PngImage image, Integer compressionLevel) throws IOException
 	{
 		// FIXME: support interlaced images
 		if (image.getInterlace() == 1)
@@ -187,7 +187,7 @@ public class PngOptimizer
 		byte[] deflatedImageData = null;
 		for (Entry<PngFilterType, List<byte[]>> entry : filteredScanlines.entrySet())
 		{
-			byte[] imageResult = this.deflateImageData(this.serialize(entry.getValue()));
+			byte[] imageResult = this.deflateImageData(this.serialize(entry.getValue()), compressionLevel);
 			if (deflatedImageData == null || imageResult.length < deflatedImageData.length)
 			{
 				deflatedImageData = imageResult;
@@ -199,7 +199,7 @@ public class PngOptimizer
 		List<byte[]> scanlines = this.copyScanlines(originalScanlines);
 		this.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
 
-		byte[] adaptiveImageData = this.deflateImageData(inflatedImageData);
+		byte[] adaptiveImageData = this.deflateImageData(inflatedImageData, compressionLevel);
 		if (deflatedImageData == null || adaptiveImageData.length < deflatedImageData.length)
 		{
 			deflatedImageData = adaptiveImageData;
@@ -465,11 +465,13 @@ public class PngOptimizer
 
 
 	/*
-	 * Deflate (compress) the inflated data using the best compression level
+	 * Deflate (compress) the inflated data using the given compression level.
+	 * If compressionLevel is null then do a brute force trial of all
+	 * compression levels to find the best one.
 	 */
-	private byte[] deflateImageData(byte[] inflatedImageData) throws IOException
+	private byte[] deflateImageData(byte[] inflatedImageData, Integer compressionLevel) throws IOException
 	{
-		List<byte[]> results = this.deflateImageDataConcurrently(inflatedImageData, true);
+		List<byte[]> results = this.deflateImageDataConcurrently(inflatedImageData, compressionLevel);
 
 		byte[] result = null;
 		for (int i = 0; i < results.size(); i++)
@@ -485,10 +487,10 @@ public class PngOptimizer
 
 	/*
 	 * Do the work of deflating (compressing) the image data with the
-	 * different compression strategies in different threads to take
+	 * different compression strategies in separate threads to take
 	 * advantage of multiple core architectures.
 	 */
-	private List<byte[]> deflateImageDataConcurrently(final byte[] inflatedImageData, final boolean bruteForceCompression)
+	private List<byte[]> deflateImageDataConcurrently(final byte[] inflatedImageData, final Integer compressionLevel)
 	{
 		final Collection<byte[]> results = new ConcurrentLinkedQueue<byte[]>();
 
@@ -501,7 +503,7 @@ public class PngOptimizer
 				{
 					try
 					{
-						results.add(PngOptimizer.this.deflateImageData(inflatedImageData, strategy, bruteForceCompression));
+						results.add(PngOptimizer.this.deflateImageData(inflatedImageData, strategy, compressionLevel));
 					}
 					catch (Throwable e)
 					{
@@ -526,37 +528,46 @@ public class PngOptimizer
 	}
 
 	/* */
-	private byte[] deflateImageData(byte[] inflatedImageData, int strategy, boolean bruteForceCompression) throws IOException
+	private byte[] deflateImageData(byte[] inflatedImageData, int strategy, Integer compressionLevel) throws IOException
 	{
 		byte[] result = null;
+		int bestCompression = Deflater.BEST_COMPRESSION;
 
-		int compression = Deflater.BEST_COMPRESSION;
-		int bestCompression = compression;
-		while (compression > Deflater.NO_COMPRESSION)
+		if (compressionLevel == null || compressionLevel > Deflater.BEST_COMPRESSION || compressionLevel < Deflater.NO_COMPRESSION)
 		{
-			ByteArrayOutputStream deflatedOut = new ByteArrayOutputStream();
-			Deflater deflater = new Deflater(compression);
-			deflater.setStrategy(strategy);
-
-			DeflaterOutputStream stream = new DeflaterOutputStream(deflatedOut, deflater);
-			stream.write(inflatedImageData);
-			stream.close();
-
-			if (result == null || (result.length > deflatedOut.size()))
+			for (int compression = Deflater.BEST_COMPRESSION; compression > Deflater.NO_COMPRESSION; compression--)
 			{
-				result = deflatedOut.toByteArray();
-				bestCompression = compression;
+				ByteArrayOutputStream deflatedOut = this.deflate(inflatedImageData, strategy, compression);
+
+				if (result == null || (result.length > deflatedOut.size()))
+				{
+					result = deflatedOut.toByteArray();
+					bestCompression = compression;
+				}
 			}
-
-			if (!bruteForceCompression)
-				break;
-
-			compression--;
 		}
-
+		else
+		{
+			result = this.deflate(inflatedImageData, strategy, compressionLevel).toByteArray();
+			bestCompression = compressionLevel;
+		}
 		this.log.debug("Compression strategy: %s, compression level=%d, bytes=%d", strategy, bestCompression, result.length);
 
 		return result;
+	}
+
+	/* */
+	private ByteArrayOutputStream deflate(byte[] inflatedImageData, int strategy, int compression) throws IOException
+	{
+		ByteArrayOutputStream deflatedOut = new ByteArrayOutputStream();
+		Deflater deflater = new Deflater(compression);
+		deflater.setStrategy(strategy);
+
+		DeflaterOutputStream stream = new DeflaterOutputStream(deflatedOut, deflater);
+		stream.write(inflatedImageData);
+		stream.close();
+
+		return deflatedOut;
 	}
 
 	/*

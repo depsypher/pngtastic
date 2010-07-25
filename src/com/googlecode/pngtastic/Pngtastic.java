@@ -27,12 +27,13 @@ public class Pngtastic
 	/** */
 	private static final String HELP = "java -jar pngtastic-x.x.x.jar com.googlecode.pngtastic.Pngtastic [options] file1 [file2 ..]\n"
 			+ "Options:\n"
-			+ "  --toDir        the directory where optimized files go (will be created if it doesn't exist)\n"
-			+ "  --fileSuffix   string appended to the optimized files (file.png can become file.png.optimized.png)\n"
-			+ "  --logLevel     the level of logging output (none, debug, info, or error)\n";
+			+ "  --toDir            the directory where optimized files go (will be created if it doesn't exist)\n"
+			+ "  --fileSuffix       string appended to the optimized files (file.png can become file.png.optimized.png)\n"
+			+ "  --compressionLevel the compression level; 0-9 allowed (default is to try them all by brute force)\n"
+			+ "  --logLevel         the level of logging output (none, debug, info, or error)\n";
 
 	/** */
-	public Pngtastic(String toDir, String[] fileNames, String fileSuffix, String logLevel)
+	public Pngtastic(String toDir, String[] fileNames, String fileSuffix, Integer compressionLevel, String logLevel)
 	{
 		long start = System.currentTimeMillis();
 
@@ -45,7 +46,7 @@ public class Pngtastic
 				this.makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
 				PngImage image = new PngImage(file);
-				optimizer.optimize(image, outputPath + fileSuffix);
+				optimizer.optimize(image, outputPath + fileSuffix, compressionLevel);
 			}
 			catch (IOException e)
 			{
@@ -101,8 +102,22 @@ public class Pngtastic
 
 		String toDir = (options.get("--toDir") == null) ? "." : options.get("--toDir");
 		String fileSuffix = (options.get("--fileSuffix") == null) ? "" : options.get("--fileSuffix");
+		Integer compressionLevel = safeInteger(options.get("--compressionLevel"));
 		String logLevel = options.get("--logLevel");
 
-		new Pngtastic(toDir, files, fileSuffix, logLevel);
+		new Pngtastic(toDir, files, fileSuffix, compressionLevel, logLevel);
+	}
+
+	/* */
+	private static Integer safeInteger(String input)
+	{
+		try
+		{
+			return Integer.valueOf(input);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 }

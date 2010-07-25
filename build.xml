@@ -11,7 +11,7 @@ Pngtastic - PNG image optimizer
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
-	
+
     <path id="javadoc.classpath">
 		<path refid="project.classpath" />
     </path>
@@ -47,7 +47,7 @@ Pngtastic - PNG image optimizer
 			</manifest>
 		</jar>
 	</target>
-	
+
 	<!--
 	Generate javadocs
 	-->
@@ -110,7 +110,7 @@ Pngtastic - PNG image optimizer
 	-->
 	<target name="runtask" depends="dist">
 		<taskdef classname="com.googlecode.pngtastic.ant.PngtasticTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
-		<pngtastic todir="build/images" loglevel="info">
+		<pngtastic todir="build/images" compressionLevel="9" loglevel="info">
 			<fileset dir="images">
 				<include name="**/*.png" />
 			</fileset>

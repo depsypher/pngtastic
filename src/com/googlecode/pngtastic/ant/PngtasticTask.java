@@ -35,6 +35,11 @@ public class PngtasticTask extends Task
 	public String getFileSuffix() { return this.fileSuffix; }
 
 	/** */
+	private Integer compressionLevel;
+	public Integer getCompressionLevel() { return this.compressionLevel; }
+	public void setCompressionLevel(Integer compressionLevel) { this.compressionLevel = compressionLevel; }
+
+	/** */
 	private String logLevel;
 	public String getLogLevel() { return this.logLevel; }
 	public void setLogLevel(String logLevel) { this.logLevel = logLevel; }
@@ -83,7 +88,7 @@ public class PngtasticTask extends Task
 					this.makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
 					PngImage image = new PngImage(inputPath);
-					optimizer.optimize(image, outputPath + this.fileSuffix);
+					optimizer.optimize(image, outputPath + this.fileSuffix, this.compressionLevel);
 				}
 				catch (Exception e)
 				{
