@@ -45,6 +45,12 @@ public class PngOptimizer
 	private static final List<Integer> compressionStrategies = Arrays.asList(Deflater.DEFAULT_STRATEGY, Deflater.FILTERED, Deflater.HUFFMAN_ONLY);
 
 	/** */
+	private static final int[] interlaceColumnFrequency	= new int[] { 8, 8, 4, 4, 2, 2, 1 };
+	private static final int[] interlaceColumnOffset	= new int[] { 0, 4, 0, 2, 0, 1, 0 };
+	private static final int[] interlaceRowFrequency	= new int[] { 8, 8, 8, 4, 4, 2, 2 };
+	private static final int[] interlaceRowOffset		= new int[] { 0, 0, 4, 0, 2, 0, 1 };
+
+	/** */
 	private final List<Stats> stats = new ArrayList<Stats>();
 	public List<Stats> getStats() { return this.stats; }
 
@@ -116,7 +122,7 @@ public class PngOptimizer
 	public PngImage optimize(PngImage image, Integer compressionLevel) throws IOException
 	{
 		// FIXME: support interlaced images
-		if (image.getInterlace() == 1)
+		if (image.getInterlace() == 1)	// && image.getSampleBitCount() < 8)
 			return image;
 
 		PngImage result = new PngImage(this.log);
@@ -160,9 +166,11 @@ public class PngOptimizer
 		imageData.close();
 
 		byte[] inflatedImageData = this.inflateImageData(imageBytes);
-
 		int scanlineLength = Double.valueOf(Math.ceil(Long.valueOf(image.getWidth() * image.getSampleBitCount()) / 8F)).intValue() + 1;
-		List<byte[]> originalScanlines = this.getScanlines(inflatedImageData, image.getSampleBitCount(), scanlineLength, image.getHeight());
+
+		List<byte[]> originalScanlines = (image.getInterlace() == 1)
+				? this.deInterlace((int)image.getWidth(), (int)image.getHeight(), image.getSampleBitCount(), inflatedImageData)
+				: this.getScanlines(inflatedImageData, image.getSampleBitCount(), scanlineLength, image.getHeight());
 
 		// TODO: use this for bit depth reduction
 //		this.getColors(image, originalScanlines);
@@ -229,8 +237,66 @@ public class PngOptimizer
 	}
 
 	/* */
+	private List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData)
+	{
+		this.log.debug("Deinterlacing");
+
+		List<byte[]> results = new ArrayList<byte[]>();
+		int sampleSize = Double.valueOf(Math.ceil((Long.valueOf(sampleBitCount) * sampleBitCount) / 8F)).intValue() + 1;
+		byte[][] rows = new byte[height][width * sampleSize + 1];
+
+		int subImageOffset = 0;
+		for (int pass = 0; pass < 7; pass++)
+		{
+			int subImageRows = height / interlaceRowFrequency[pass];
+			int subImageColumns = width / interlaceColumnFrequency[pass];
+			int rowLength = Double.valueOf(Math.ceil((Long.valueOf(subImageColumns) * sampleBitCount) / 8F)).intValue() + 1;
+
+			byte[] previousRow = new byte[rowLength];
+			int offset = 0;
+			for (int i = 0; i < subImageRows; i++)
+			{
+				offset = subImageOffset + i * rowLength;
+				byte[] row = new byte[rowLength];
+				System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
+				try
+				{
+					this.deFilter(row, previousRow, sampleBitCount);
+				}
+				catch (PngException e)
+				{
+					this.log.error("Error: %s", e.getMessage());
+				}
+
+				int samples = (row.length - 1) / sampleSize;
+				for (int sample = 0; sample < samples; sample++)
+				{
+					for (int b = 0; b < sampleSize; b++)
+					{
+						int cf = interlaceColumnFrequency[pass] * sampleSize;
+						int co = interlaceColumnOffset[pass] * sampleSize;
+						int rf = interlaceRowFrequency[pass];
+						int ro = interlaceRowOffset[pass];
+						rows[i * rf + ro][sample * cf + co + b + 1] = row[sample + b + 1];
+					}
+				}
+				previousRow = row.clone();
+			}
+			subImageOffset = offset + rowLength;
+		}
+		for (int i = 0; i < rows.length; i++)
+		{
+			results.add(rows[i]);
+		}
+
+		return results;
+	}
+
+	/* */
 	private List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height)
 	{
+		this.log.debug("Getting scanlines");
+
 		List<byte[]> rows = new ArrayList<byte[]>(Math.max((int)height, 0));
 		byte[] previousRow = new byte[rowLength];
 
