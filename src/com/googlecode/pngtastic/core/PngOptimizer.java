@@ -121,11 +121,12 @@ public class PngOptimizer
 	/** */
 	public PngImage optimize(PngImage image, Integer compressionLevel) throws IOException
 	{
-		// FIXME: support interlaced images
-		if (image.getInterlace() == 1)	// && image.getSampleBitCount() < 8)
+		// FIXME: support low bit depth interlaced images
+		if (image.getInterlace() == 1 && image.getSampleBitCount() < 8)
 			return image;
 
 		PngImage result = new PngImage(this.log);
+		result.setInterlace((short)0);
 
 		Iterator<PngChunk> itChunks = image.getChunks().iterator();
 		PngChunk chunk = null;
@@ -144,6 +145,10 @@ public class PngOptimizer
 				data.close();
 
 				PngChunk newChunk = new PngChunk(chunk.getType(), bytes.toByteArray());
+				if (PngChunk.IMAGE_HEADER.equals(chunk.getTypeString()))
+				{
+					newChunk.setInterlace((byte)0);
+				}
 				result.addChunk(newChunk);
 			}
 		}
@@ -242,15 +247,15 @@ public class PngOptimizer
 		this.log.debug("Deinterlacing");
 
 		List<byte[]> results = new ArrayList<byte[]>();
-		int sampleSize = Double.valueOf(Math.ceil((Long.valueOf(sampleBitCount) * sampleBitCount) / 8F)).intValue() + 1;
-		byte[][] rows = new byte[height][width * sampleSize + 1];
+		int sampleSize = Math.max(1, sampleBitCount / 8);
+		byte[][] rows = new byte[height][Double.valueOf(Math.ceil(width * sampleBitCount / 8D)).intValue() + 1];
 
 		int subImageOffset = 0;
 		for (int pass = 0; pass < 7; pass++)
 		{
 			int subImageRows = height / interlaceRowFrequency[pass];
 			int subImageColumns = width / interlaceColumnFrequency[pass];
-			int rowLength = Double.valueOf(Math.ceil((Long.valueOf(subImageColumns) * sampleBitCount) / 8F)).intValue() + 1;
+			int rowLength = Double.valueOf(Math.ceil(subImageColumns * sampleBitCount / 8D)).intValue() + 1;
 
 			byte[] previousRow = new byte[rowLength];
 			int offset = 0;
@@ -277,7 +282,7 @@ public class PngOptimizer
 						int co = interlaceColumnOffset[pass] * sampleSize;
 						int rf = interlaceRowFrequency[pass];
 						int ro = interlaceRowOffset[pass];
-						rows[i * rf + ro][sample * cf + co + b + 1] = row[sample + b + 1];
+						rows[i * rf + ro][sample * cf + co + b + 1] = row[(sample * sampleSize) + b + 1];
 					}
 				}
 				previousRow = row.clone();

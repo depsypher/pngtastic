@@ -58,6 +58,7 @@ public class PngImage
 	/** */
 	private short interlace;
 	public short getInterlace() { return this.interlace; }
+	public void setInterlace(short interlace) { this.interlace = interlace; }
 
 	/** */
 	private PngImageType imageType;

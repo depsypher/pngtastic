@@ -120,6 +120,12 @@ public class PngChunk
 	}
 
 	/** */
+	public void setInterlace(byte interlace)
+	{
+		this.data[12] = interlace;
+	}
+
+	/** */
 	public long getUnsignedInt(int offset)
 	{
 		long value = 0;
