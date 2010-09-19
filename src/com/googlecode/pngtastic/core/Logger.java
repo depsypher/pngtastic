@@ -9,11 +9,10 @@ import java.util.List;
 
 /**
  * Custom logger because I want to have zero dependancies; perhaps to be replaced with java.util logging.
- * Made package access to limit its use outside of pngtastic core.
  *
  * @author rayvanderborght
  */
-class Logger
+public class Logger
 {
 	/** */
 	static final String NONE = "NONE";
@@ -37,35 +36,35 @@ class Logger
 	 * Write debug messages.
 	 * Takes a varags list of args so that string concatenation only happens if the logging level applies.
 	 *
-	 * @param messages
+	 * @param message
 	 */
-	void debug(String format, Object... args)
+	public void debug(String message, Object... args)
 	{
 		if (DEBUG.equals(this.logLevel))
-			System.out.println(String.format(format, args));
+			System.out.println(String.format(message, args));
 	}
 
 	/**
 	 * Write info messages.
 	 * Takes a varags list of args so that string concatenation only happens if the logging level applies.
 	 *
-	 * @param messages
+	 * @param message
 	 */
-	void info(String format, Object... args)
+	public void info(String message, Object... args)
 	{
 		if (DEBUG.equals(this.logLevel) || INFO.equals(this.logLevel))
-			System.out.println(String.format(format, args));
+			System.out.println(String.format(message, args));
 	}
 
 	/**
 	 * Write error messages.
 	 * Takes a varags list of args so that string concatenation only happens if the logging level applies.
 	 *
-	 * @param messages
+	 * @param message
 	 */
-	void error(String format, Object... args)
+	public void error(String message, Object... args)
 	{
 		if (!NONE.equals(this.logLevel))
-			System.out.println(String.format(format, args));
+			System.out.println(String.format(message, args));
 	}
 }

@@ -31,6 +31,11 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import com.googlecode.pngtastic.core.processing.PngFilterHandler;
+import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
+
 /**
  * Optimizes PNG images for smallest possible filesize.
  *
@@ -42,13 +47,11 @@ public class PngOptimizer
 	private final Logger log;
 
 	/** */
-	private static final List<Integer> compressionStrategies = Arrays.asList(Deflater.DEFAULT_STRATEGY, Deflater.FILTERED, Deflater.HUFFMAN_ONLY);
+	private PngFilterHandler pngFilterHandler;
+	private PngInterlaceHandler pngInterlaceHander;
 
 	/** */
-	private static final int[] interlaceColumnFrequency	= new int[] { 8, 8, 4, 4, 2, 2, 1 };
-	private static final int[] interlaceColumnOffset	= new int[] { 0, 4, 0, 2, 0, 1, 0 };
-	private static final int[] interlaceRowFrequency	= new int[] { 8, 8, 8, 4, 4, 2, 2 };
-	private static final int[] interlaceRowOffset		= new int[] { 0, 0, 4, 0, 2, 0, 1 };
+	private static final List<Integer> compressionStrategies = Arrays.asList(Deflater.DEFAULT_STRATEGY, Deflater.FILTERED, Deflater.HUFFMAN_ONLY);
 
 	/** */
 	private final List<Stats> stats = new ArrayList<Stats>();
@@ -64,6 +67,8 @@ public class PngOptimizer
 	public PngOptimizer(String logLevel)
 	{
 		this.log = new Logger(logLevel);
+		this.pngFilterHandler = new PngtasticFilterHandler();
+		this.pngInterlaceHander = new PngtasticInterlaceHandler(this.log, this.pngFilterHandler);
 	}
 
 	/** */
@@ -174,7 +179,7 @@ public class PngOptimizer
 		int scanlineLength = Double.valueOf(Math.ceil(Long.valueOf(image.getWidth() * image.getSampleBitCount()) / 8F)).intValue() + 1;
 
 		List<byte[]> originalScanlines = (image.getInterlace() == 1)
-				? this.deInterlace((int)image.getWidth(), (int)image.getHeight(), image.getSampleBitCount(), inflatedImageData)
+				? this.pngInterlaceHander.deInterlace((int)image.getWidth(), (int)image.getHeight(), image.getSampleBitCount(), inflatedImageData)
 				: this.getScanlines(inflatedImageData, image.getSampleBitCount(), scanlineLength, image.getHeight());
 
 		// TODO: use this for bit depth reduction
@@ -242,62 +247,6 @@ public class PngOptimizer
 	}
 
 	/* */
-	private List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData)
-	{
-		this.log.debug("Deinterlacing");
-
-		List<byte[]> results = new ArrayList<byte[]>();
-		int sampleSize = Math.max(1, sampleBitCount / 8);
-		byte[][] rows = new byte[height][Double.valueOf(Math.ceil(width * sampleBitCount / 8D)).intValue() + 1];
-
-		int subImageOffset = 0;
-		for (int pass = 0; pass < 7; pass++)
-		{
-			int subImageRows = height / interlaceRowFrequency[pass];
-			int subImageColumns = width / interlaceColumnFrequency[pass];
-			int rowLength = Double.valueOf(Math.ceil(subImageColumns * sampleBitCount / 8D)).intValue() + 1;
-
-			byte[] previousRow = new byte[rowLength];
-			int offset = 0;
-			for (int i = 0; i < subImageRows; i++)
-			{
-				offset = subImageOffset + i * rowLength;
-				byte[] row = new byte[rowLength];
-				System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
-				try
-				{
-					this.deFilter(row, previousRow, sampleBitCount);
-				}
-				catch (PngException e)
-				{
-					this.log.error("Error: %s", e.getMessage());
-				}
-
-				int samples = (row.length - 1) / sampleSize;
-				for (int sample = 0; sample < samples; sample++)
-				{
-					for (int b = 0; b < sampleSize; b++)
-					{
-						int cf = interlaceColumnFrequency[pass] * sampleSize;
-						int co = interlaceColumnOffset[pass] * sampleSize;
-						int rf = interlaceRowFrequency[pass];
-						int ro = interlaceRowOffset[pass];
-						rows[i * rf + ro][sample * cf + co + b + 1] = row[(sample * sampleSize) + b + 1];
-					}
-				}
-				previousRow = row.clone();
-			}
-			subImageOffset = offset + rowLength;
-		}
-		for (int i = 0; i < rows.length; i++)
-		{
-			results.add(rows[i]);
-		}
-
-		return results;
-	}
-
-	/* */
 	private List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height)
 	{
 		this.log.debug("Getting scanlines");
@@ -312,7 +261,7 @@ public class PngOptimizer
 			System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
 			try
 			{
-				this.deFilter(row, previousRow, sampleBitCount);
+				this.pngFilterHandler.deFilter(row, previousRow, sampleBitCount);
 				rows.add(row);
 
 				previousRow = row.clone();
@@ -350,7 +299,7 @@ public class PngOptimizer
 
 			try
 			{
-				this.filter(scanline, previousRow, sampleBitCount);
+				this.pngFilterHandler.filter(scanline, previousRow, sampleBitCount);
 			}
 			catch (PngException e)
 			{
@@ -401,135 +350,6 @@ public class PngOptimizer
 
 		return imageData;
 	}
-
-	/*
-	 * Do filtering as described in the png spec:
-	 * The scanline starts with a filter type byte, then continues with the image data.
-	 * The bytes are named as follows (x = current, a = previous, b = above, c = previous and above)
-	 *
-	 * c b
-	 * a x
-	 */
-	private void filter(byte[] line, byte[] previousLine, int sampleBitCount) throws PngException
-	{
-		PngFilterType filterType = PngFilterType.forValue(line[0]);
-		line[0] = 0;
-
-		PngFilterType previousFilterType = PngFilterType.forValue(previousLine[0]);
-		previousLine[0] = 0;
-
-		switch (filterType)
-		{
-			case NONE:
-				break;
-
-			case SUB:
-			{
-				byte[] original = line.clone();
-				int previous = -(Math.max(1, sampleBitCount / 8) - 1);
-				for (int x = 1, a = previous; x < line.length; x++, a++)
-					line[x] = (byte)(original[x] - ((a < 0) ? 0 : original[a]));
-				break;
-			}
-			case UP:
-			{
-				for (int x = 1; x < line.length; x++)
-					line[x] = (byte)(line[x] - previousLine[x]);
-				break;
-			}
-			case AVERAGE:
-			{
-				byte[] original = line.clone();
-				int previous = -(Math.max(1, sampleBitCount / 8) - 1);
-				for (int x = 1, a = previous; x < line.length; x++, a++)
-					line[x] = (byte)(original[x] - ((0xFF & original[(a < 0) ? 0 : a]) + (0xFF & previousLine[x])) / 2);
-				break;
-			}
-			case PAETH:
-			{
-				byte[] original = line.clone();
-				int previous = -(Math.max(1, sampleBitCount / 8) - 1);
-				for (int x = 1, a = previous; x < line.length; x++, a++)
-				{
-					int result = this.paethPredictor(original, previousLine, x, a);
-					line[x] = (byte)(original[x] - result);
-				}
-				break;
-			}
-			default:
-				throw new PngException("Unrecognized filter type " + filterType);
-		}
-		line[0] = filterType.getValue();
-		previousLine[0] = previousFilterType.getValue();
-	}
-
-	/*
-	 * Do the opposite of PNG filtering:
-	 * @see #filter(byte[], byte[], int)
-	 */
-	private void deFilter(byte[] line, byte[] previousLine, int sampleBitCount) throws PngException
-	{
-		PngFilterType filterType = PngFilterType.forValue(line[0]);
-		line[0] = 0;
-
-		PngFilterType previousFilterType = PngFilterType.forValue(previousLine[0]);
-		previousLine[0] = 0;
-
-		switch (filterType)
-		{
-			case SUB:
-			{
-				int previous = -(Math.max(1, sampleBitCount / 8) - 1);
-				for (int x = 1, a = previous; x < line.length; x++, a++)
-					line[x] = (byte)(line[x] + ((a < 0) ? 0 : line[a]));
-				break;
-			}
-			case UP:
-			{
-				for (int x = 1; x < line.length; x++)
-					line[x] = (byte) (line[x] + previousLine[x]);
-				break;
-			}
-			case AVERAGE:
-			{
-				int previous = -(Math.max(1, sampleBitCount / 8) - 1);
-				for (int x = 1, a = previous; x < line.length; x++, a++)
-					line[x] = (byte)(line[x] + ((0xFF & ((a < 0) ? 0 : line[a])) + (0xFF & previousLine[x])) / 2);
-				break;
-			}
-			case PAETH:
-			{
-				int previous = -(Math.max(1, sampleBitCount / 8) - 1);
-				for (int x = 1, xp = previous; x < line.length; x++, xp++)
-				{
-					int result = this.paethPredictor(line, previousLine, x, xp);
-					line[x] = (byte)(line[x] + result);
-				}
-				break;
-			}
-		}
-		line[0] = filterType.getValue();
-		previousLine[0] = previousFilterType.getValue();
-	}
-
-	/* */
-	private int paethPredictor(byte[] line, byte[] previousLine, int x, int xp)
-	{
-		int a = 0xFF & ((xp < 0) ? 0 : line[xp]);
-		int b = 0xFF & previousLine[x];
-		int c = 0xFF & ((xp < 0) ? 0 : previousLine[xp]);
-		int p = a + b - c;
-
-		int pa = (p >= a) ? (p - a) : -(p - a);
-		int pb = (p >= b) ? (p - b) : -(p - b);
-		int pc = (p >= c) ? (p - c) : -(p - c);
-
-		if (pa <= pb && pa <= pc)
-			return a;
-
-		return (pb <= pc) ? b : c;
-	}
-
 
 	/*
 	 * Deflate (compress) the inflated data using the given compression level.
