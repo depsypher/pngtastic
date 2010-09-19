@@ -14,8 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,16 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterInputStream;
 
+import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
@@ -49,9 +42,7 @@ public class PngOptimizer
 	/** */
 	private PngFilterHandler pngFilterHandler;
 	private PngInterlaceHandler pngInterlaceHander;
-
-	/** */
-	private static final List<Integer> compressionStrategies = Arrays.asList(Deflater.DEFAULT_STRATEGY, Deflater.FILTERED, Deflater.HUFFMAN_ONLY);
+	private PngCompressionHandler pngCompressionHandler;
 
 	/** */
 	private final List<Stats> stats = new ArrayList<Stats>();
@@ -69,6 +60,7 @@ public class PngOptimizer
 		this.log = new Logger(logLevel);
 		this.pngFilterHandler = new PngtasticFilterHandler();
 		this.pngInterlaceHander = new PngtasticInterlaceHandler(this.log, this.pngFilterHandler);
+		this.pngCompressionHandler = new PngtasticCompressionHandler(this.log);
 	}
 
 	/** */
@@ -175,7 +167,7 @@ public class PngOptimizer
 		}
 		imageData.close();
 
-		byte[] inflatedImageData = this.inflateImageData(imageBytes);
+		byte[] inflatedImageData = this.pngCompressionHandler.inflate(imageBytes);
 		int scanlineLength = Double.valueOf(Math.ceil(Long.valueOf(image.getWidth() * image.getSampleBitCount()) / 8F)).intValue() + 1;
 
 		List<byte[]> originalScanlines = (image.getInterlace() == 1)
@@ -201,7 +193,7 @@ public class PngOptimizer
 		byte[] deflatedImageData = null;
 		for (Entry<PngFilterType, List<byte[]>> entry : filteredScanlines.entrySet())
 		{
-			byte[] imageResult = this.deflateImageData(this.serialize(entry.getValue()), compressionLevel);
+			byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(entry.getValue()), compressionLevel);
 			if (deflatedImageData == null || imageResult.length < deflatedImageData.length)
 			{
 				deflatedImageData = imageResult;
@@ -213,7 +205,7 @@ public class PngOptimizer
 		List<byte[]> scanlines = this.copyScanlines(originalScanlines);
 		this.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
 
-		byte[] adaptiveImageData = this.deflateImageData(inflatedImageData, compressionLevel);
+		byte[] adaptiveImageData = this.pngCompressionHandler.deflate(inflatedImageData, compressionLevel);
 		if (deflatedImageData == null || adaptiveImageData.length < deflatedImageData.length)
 		{
 			deflatedImageData = adaptiveImageData;
@@ -349,129 +341,6 @@ public class PngOptimizer
 		}
 
 		return imageData;
-	}
-
-	/*
-	 * Deflate (compress) the inflated data using the given compression level.
-	 * If compressionLevel is null then do a brute force trial of all
-	 * compression levels to find the best one.
-	 */
-	private byte[] deflateImageData(byte[] inflatedImageData, Integer compressionLevel) throws IOException
-	{
-		List<byte[]> results = this.deflateImageDataConcurrently(inflatedImageData, compressionLevel);
-
-		byte[] result = null;
-		for (int i = 0; i < results.size(); i++)
-		{
-			byte[] data = results.get(i);
-			if (result == null || (data.length < result.length))
-				result = data;
-		}
-		this.log.debug("Image bytes=%d", result.length);
-
-		return result;
-	}
-
-	/*
-	 * Do the work of deflating (compressing) the image data with the
-	 * different compression strategies in separate threads to take
-	 * advantage of multiple core architectures.
-	 */
-	private List<byte[]> deflateImageDataConcurrently(final byte[] inflatedImageData, final Integer compressionLevel)
-	{
-		final Collection<byte[]> results = new ConcurrentLinkedQueue<byte[]>();
-
-		final Collection<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-		for (final int strategy : compressionStrategies)
-		{
-			tasks.add(Executors.callable(new Runnable()
-			{
-				public void run()
-				{
-					try
-					{
-						results.add(PngOptimizer.this.deflateImageData(inflatedImageData, strategy, compressionLevel));
-					}
-					catch (Throwable e)
-					{
-						PngOptimizer.this.log.error("Uncaught Exception: %s", e.getMessage());
-					}
-				}
-			}));
-		}
-
-		ExecutorService compressionThreadPool = Executors.newFixedThreadPool(compressionStrategies.size());
-		try
-		{
-			compressionThreadPool.invokeAll(tasks);
-		}
-		catch (InterruptedException ex) {  }
-		finally
-		{
-			compressionThreadPool.shutdown();
-		}
-
-		return new ArrayList<byte[]>(results);
-	}
-
-	/* */
-	private byte[] deflateImageData(byte[] inflatedImageData, int strategy, Integer compressionLevel) throws IOException
-	{
-		byte[] result = null;
-		int bestCompression = Deflater.BEST_COMPRESSION;
-
-		if (compressionLevel == null || compressionLevel > Deflater.BEST_COMPRESSION || compressionLevel < Deflater.NO_COMPRESSION)
-		{
-			for (int compression = Deflater.BEST_COMPRESSION; compression > Deflater.NO_COMPRESSION; compression--)
-			{
-				ByteArrayOutputStream deflatedOut = this.deflate(inflatedImageData, strategy, compression);
-
-				if (result == null || (result.length > deflatedOut.size()))
-				{
-					result = deflatedOut.toByteArray();
-					bestCompression = compression;
-				}
-			}
-		}
-		else
-		{
-			result = this.deflate(inflatedImageData, strategy, compressionLevel).toByteArray();
-			bestCompression = compressionLevel;
-		}
-		this.log.debug("Compression strategy: %s, compression level=%d, bytes=%d", strategy, bestCompression, result.length);
-
-		return result;
-	}
-
-	/* */
-	private ByteArrayOutputStream deflate(byte[] inflatedImageData, int strategy, int compression) throws IOException
-	{
-		ByteArrayOutputStream deflatedOut = new ByteArrayOutputStream();
-		Deflater deflater = new Deflater(compression);
-		deflater.setStrategy(strategy);
-
-		DeflaterOutputStream stream = new DeflaterOutputStream(deflatedOut, deflater);
-		stream.write(inflatedImageData);
-		stream.close();
-
-		return deflatedOut;
-	}
-
-	/*
-	 * Inflate (decompress) the compressed image data
-	 */
-	private byte[] inflateImageData(ByteArrayOutputStream imageBytes) throws IOException
-	{
-		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.toByteArray()));
-		ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream();
-
-		int readLength;
-		byte[] block = new byte[8192];
-		while ((readLength = inflater.read(block)) != -1)
-			inflatedOut.write(block, 0, readLength);
-
-		byte[] inflatedImageData = inflatedOut.toByteArray();
-		return inflatedImageData;
 	}
 
 	/* */
