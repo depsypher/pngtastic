@@ -58,7 +58,7 @@ public class PngOptimizer
 	public PngOptimizer(String logLevel)
 	{
 		this.log = new Logger(logLevel);
-		this.pngFilterHandler = new PngtasticFilterHandler();
+		this.pngFilterHandler = new PngtasticFilterHandler(this.log);
 		this.pngInterlaceHander = new PngtasticInterlaceHandler(this.log, this.pngFilterHandler);
 		this.pngCompressionHandler = new PngtasticCompressionHandler(this.log);
 	}
@@ -183,7 +183,7 @@ public class PngOptimizer
 		{
 			this.log.debug("Applying filter: %s", filterType);
 			List<byte[]> scanlines = this.copyScanlines(originalScanlines);
-			this.applyFiltering(filterType, scanlines, image.getSampleBitCount());
+			this.pngFilterHandler.applyFiltering(filterType, scanlines, image.getSampleBitCount());
 
 			filteredScanlines.put(filterType, scanlines);
 		}
@@ -203,7 +203,7 @@ public class PngOptimizer
 
 		// see if adaptive filtering results in even better compression
 		List<byte[]> scanlines = this.copyScanlines(originalScanlines);
-		this.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
+		this.pngFilterHandler.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
 
 		byte[] adaptiveImageData = this.pngCompressionHandler.deflate(inflatedImageData, compressionLevel);
 		if (deflatedImageData == null || adaptiveImageData.length < deflatedImageData.length)
@@ -274,58 +274,6 @@ public class PngOptimizer
 			copy.add(scanline.clone());
 
 		return copy;
-	}
-
-	/* */
-	private void applyFiltering(PngFilterType filterType, List<byte[]> scanlines, int sampleBitCount)
-	{
-		int i = 0;
-		int scanlineLength = scanlines.get(0).length;
-		byte[] previousRow = new byte[scanlineLength];
-		for (byte[] scanline : scanlines)
-		{
-			if (filterType != null)
-				scanline[0] = filterType.getValue();
-
-			byte[] previous = scanline.clone();
-
-			try
-			{
-				this.pngFilterHandler.filter(scanline, previousRow, sampleBitCount);
-			}
-			catch (PngException e)
-			{
-				this.log.error("Error during filtering: %s", e.getMessage());
-			}
-			previousRow = previous;
-			i++;
-		}
-	}
-
-	/* */
-	private void applyAdaptiveFiltering(byte[] inflatedImageData, List<byte[]> scanlines, Map<PngFilterType, List<byte[]>> filteredScanLines, int sampleSize) throws IOException
-	{
-		for (int s = 0; s < scanlines.size(); s++)
-		{
-			long bestSum = Long.MAX_VALUE;
-			PngFilterType bestFilterType = null;
-			for (Map.Entry<PngFilterType, List<byte[]>> entry : filteredScanLines.entrySet())
-			{
-				long sum = 0;
-				byte[] scanline = entry.getValue().get(s);
-				for (int i = 1; i < scanline.length; i++)
-					sum += Math.abs(scanline[i]);
-
-				if (sum < bestSum)
-				{
-					bestFilterType = entry.getKey();
-					bestSum = sum;
-				}
-			}
-			scanlines.get(s)[0] = bestFilterType.getValue();
-		}
-
-		this.applyFiltering(null, scanlines, sampleSize);
 	}
 
 	/* */

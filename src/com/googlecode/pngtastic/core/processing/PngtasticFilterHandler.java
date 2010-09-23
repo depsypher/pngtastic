@@ -4,6 +4,11 @@
  */
 package com.googlecode.pngtastic.core.processing;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import com.googlecode.pngtastic.core.Logger;
 import com.googlecode.pngtastic.core.PngException;
 import com.googlecode.pngtastic.core.PngFilterType;
 
@@ -14,6 +19,73 @@ import com.googlecode.pngtastic.core.PngFilterType;
  */
 public class PngtasticFilterHandler implements PngFilterHandler
 {
+	/** */
+	private final Logger log;
+
+	/** */
+	public PngtasticFilterHandler(Logger log)
+	{
+		this.log = log;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void applyFiltering(PngFilterType filterType, List<byte[]> scanlines, int sampleBitCount)
+	{
+		int i = 0;
+		int scanlineLength = scanlines.get(0).length;
+		byte[] previousRow = new byte[scanlineLength];
+		for (byte[] scanline : scanlines)
+		{
+			if (filterType != null)
+				scanline[0] = filterType.getValue();
+
+			byte[] previous = scanline.clone();
+
+			try
+			{
+				this.filter(scanline, previousRow, sampleBitCount);
+			}
+			catch (PngException e)
+			{
+				this.log.error("Error during filtering: %s", e.getMessage());
+			}
+			previousRow = previous;
+			i++;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void applyAdaptiveFiltering(byte[] inflatedImageData, List<byte[]> scanlines, Map<PngFilterType, List<byte[]>> filteredScanLines, int sampleSize) throws IOException
+	{
+		for (int s = 0; s < scanlines.size(); s++)
+		{
+			long bestSum = Long.MAX_VALUE;
+			PngFilterType bestFilterType = null;
+			for (Map.Entry<PngFilterType, List<byte[]>> entry : filteredScanLines.entrySet())
+			{
+				long sum = 0;
+				byte[] scanline = entry.getValue().get(s);
+				for (int i = 1; i < scanline.length; i++)
+					sum += Math.abs(scanline[i]);
+
+				if (sum < bestSum)
+				{
+					bestFilterType = entry.getKey();
+					bestSum = sum;
+				}
+			}
+			scanlines.get(s)[0] = bestFilterType.getValue();
+		}
+
+		this.applyFiltering(null, scanlines, sampleSize);
+	}
+
 	/**
 	 * @inheritDoc
 	 *
