@@ -93,8 +93,9 @@ public class PngOptimizer
 			}
 			finally
 			{
-				if (ins != null)
-					ins.close();
+				if (ins != null) {
+                    ins.close();
+                }
 			}
 			exported = new File(outputFileName);
 			optimized.writeFileOutputStream(exported, buffer.array());
@@ -107,10 +108,11 @@ public class PngOptimizer
 		this.log.debug("Original length in bytes: %d (%s)", originalFileSize, image.getFileName());
 		this.log.debug("Final length in bytes: %d (%s)", optimizedFileSize, outputFileName);
 
-		if (optimizedFileSize <= originalFileSize)
-			this.log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s", (originalFileSize - optimizedFileSize) / Float.valueOf(originalFileSize) * 100, originalFileSize, optimizedFileSize, originalFileSize - optimizedFileSize, outputFileName);
-		else
-			this.log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s", -(optimizedFileSize - originalFileSize) / Float.valueOf(originalFileSize) * 100, originalFileSize, optimizedFileSize, -(optimizedFileSize - originalFileSize), outputFileName);
+		if (optimizedFileSize <= originalFileSize) {
+            this.log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s", (originalFileSize - optimizedFileSize) / Float.valueOf(originalFileSize) * 100, originalFileSize, optimizedFileSize, originalFileSize - optimizedFileSize, outputFileName);
+        } else {
+            this.log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s", -(optimizedFileSize - originalFileSize) / Float.valueOf(originalFileSize) * 100, originalFileSize, optimizedFileSize, -(optimizedFileSize - originalFileSize), outputFileName);
+        }
 
 		this.stats.add(new Stats(originalFileSize, optimizedFileSize));
 	}
@@ -119,8 +121,9 @@ public class PngOptimizer
 	public PngImage optimize(PngImage image, Integer compressionLevel) throws IOException
 	{
 		// FIXME: support low bit depth interlaced images
-		if (image.getInterlace() == 1 && image.getSampleBitCount() < 8)
-			return image;
+		if (image.getInterlace() == 1 && image.getSampleBitCount() < 8) {
+            return image;
+        }
 
 		PngImage result = new PngImage(this.log);
 		result.setInterlace((short)0);
@@ -130,8 +133,9 @@ public class PngOptimizer
 		while (itChunks.hasNext())
 		{
 			chunk = itChunks.next();
-			if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString()))
-				break;
+			if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString())) {
+                break;
+            }
 
 			if (chunk.isRequired())
 			{
@@ -151,7 +155,7 @@ public class PngOptimizer
 		}
 
 		// collect image data chunks
-		ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk.getLength());
+		ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
 		DataOutputStream imageData = new DataOutputStream(imageBytes);
 		while (chunk != null)
 		{
@@ -270,8 +274,9 @@ public class PngOptimizer
 	private List<byte[]> copyScanlines(List<byte[]> original)
 	{
 		List<byte[]> copy = new ArrayList<byte[]>(original.size());
-		for (byte[] scanline : original)
-			copy.add(scanline.clone());
+		for (byte[] scanline : original) {
+            copy.add(scanline.clone());
+        }
 
 		return copy;
 	}
@@ -408,15 +413,18 @@ public class PngOptimizer
 		@Override
 		public boolean equals(Object obj)
 		{
-			if (this == obj)
-				return true;
+			if (this == obj) {
+                return true;
+            }
 
-			if (obj == null || this.getClass() != obj.getClass())
-				return false;
+			if (obj == null || this.getClass() != obj.getClass()) {
+                return false;
+            }
 
 			PngPixel other = (PngPixel) obj;
-			if (this.alpha != other.alpha || this.blue != other.blue || this.green != other.green || this.red != other.red)
-				return false;
+			if (this.alpha != other.alpha || this.blue != other.blue || this.green != other.green || this.red != other.red) {
+                return false;
+            }
 
 			return true;
 		}
@@ -453,8 +461,9 @@ public class PngOptimizer
 	public long getTotalSavings()
 	{
 		long totalSavings = 0;
-		for (PngOptimizer.Stats stat : this.getStats())
-			totalSavings += (stat.getOriginalFileSize() - stat.getOptimizedFileSize());
+		for (PngOptimizer.Stats stat : this.getStats()) {
+            totalSavings += (stat.getOriginalFileSize() - stat.getOptimizedFileSize());
+        }
 
 		return totalSavings;
 	}
@@ -464,8 +473,9 @@ public class PngOptimizer
 	private void printData(byte[] inflatedImageData)
 	{
 		StringBuilder result = new StringBuilder();
-		for (byte b : inflatedImageData)
-			result.append(String.format("%2x|", b));
+		for (byte b : inflatedImageData) {
+            result.append(String.format("%2x|", b));
+        }
 		this.log.debug(result.toString());
 	}
 }

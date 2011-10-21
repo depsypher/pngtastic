@@ -37,7 +37,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 *
 	 * Throws a runtime exception.
 	 * <p>
@@ -53,7 +53,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData)
