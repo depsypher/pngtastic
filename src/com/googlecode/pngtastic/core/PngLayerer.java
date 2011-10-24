@@ -20,7 +20,9 @@ import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
 
 /**
- * Layers PNG images on top of one another.
+ * Layers PNG images on top of one another. Currently expects two images of the
+ * same size. Both images must be truecolor images, and the layer image
+ * (foreground) must have an alpha channel.
  *
  * @author rayvanderborght
  */
@@ -292,18 +294,17 @@ public class PngLayerer {
 						: layerDin.readUnsignedShort();
 				}
 
-				if (layerAlpha < baseAlpha) {
-					dos.writeByte(baseRed);
-					dos.writeByte(baseGreen);
-					dos.writeByte(baseBlue);
-					dos.writeByte(baseAlpha);
+				if (layerAlpha == 0) {
+                    dos.writeByte(baseRed);
+                    dos.writeByte(baseGreen);
+                    dos.writeByte(baseBlue);
+                    dos.writeByte(baseAlpha);
 				} else {
-					dos.writeByte(layerRed);
-					dos.writeByte(layerGreen);
-					dos.writeByte(layerBlue);
-					dos.writeByte(layerAlpha);
+				    dos.writeByte((baseRed * (255 - layerAlpha) + layerRed * layerAlpha) / 255);
+				    dos.writeByte((baseGreen * (255 - layerAlpha) + layerGreen * layerAlpha) / 255);
+				    dos.writeByte((baseBlue * (255 - layerAlpha) + layerBlue * layerAlpha) / 255);
+				    dos.writeByte(255);
 				}
-
 			}
 			dos.flush();
 			result.add(outs.toByteArray());
