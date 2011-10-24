@@ -1,7 +1,3 @@
-/*
- * $Id: PngOptimizer.java 36 2011-10-21 22:15:53Z voidstar $
- * $URL: https://pngtastic.googlecode.com/svn/trunk/pngtastic/src/com/googlecode/pngtastic/core/PngOptimizer.java $
- */
 package com.googlecode.pngtastic.core;
 
 import java.io.ByteArrayInputStream;
