@@ -34,6 +34,7 @@ public class PngImage
 	/** */
 	private String fileName;
 	public String getFileName() { return this.fileName; }
+	public void setFileName(String fileName) { this.fileName = fileName; }
 
 	/** */
 	private List<PngChunk> chunks = new ArrayList<PngChunk>();
@@ -150,7 +151,7 @@ public class PngImage
 	}
 
 	/** */
-	DataOutputStream writeDataOutputStream(OutputStream output) throws IOException
+	public DataOutputStream writeDataOutputStream(OutputStream output) throws IOException
 	{
 		DataOutputStream outs = new DataOutputStream(output);
 		outs.writeLong(PngImage.SIGNATURE);
