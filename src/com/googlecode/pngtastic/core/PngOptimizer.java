@@ -1,7 +1,3 @@
-/*
- * $Id$
- * $URL$
- */
 package com.googlecode.pngtastic.core;
 
 import java.io.ByteArrayInputStream;
@@ -146,7 +142,7 @@ public class PngOptimizer {
 		PngFilterType bestFilterType = null;
 		byte[] deflatedImageData = null;
 		for (Entry<PngFilterType, List<byte[]>> entry : filteredScanlines.entrySet()) {
-			byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(entry.getValue()), compressionLevel);
+			byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(entry.getValue()), compressionLevel, true);
 			if (deflatedImageData == null || imageResult.length < deflatedImageData.length) {
 				deflatedImageData = imageResult;
 				bestFilterType = entry.getKey();
@@ -157,7 +153,7 @@ public class PngOptimizer {
 		List<byte[]> scanlines = this.copyScanlines(originalScanlines);
 		this.pngFilterHandler.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
 
-		byte[] adaptiveImageData = this.pngCompressionHandler.deflate(inflatedImageData, compressionLevel);
+		byte[] adaptiveImageData = this.pngCompressionHandler.deflate(inflatedImageData, compressionLevel, true);
 		if (deflatedImageData == null || adaptiveImageData.length < deflatedImageData.length) {
 			deflatedImageData = adaptiveImageData;
 			bestFilterType = PngFilterType.ADAPTIVE;

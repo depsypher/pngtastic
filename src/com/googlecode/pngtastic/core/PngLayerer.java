@@ -58,7 +58,7 @@ public class PngLayerer {
 		this.log.debug("=== LAYERING: " + baseImage.getFileName() + ", " + layerImage.getFileName() + " ===");
 
 		long start = System.currentTimeMillis();
-		PngImage outputImage = this.layer(baseImage, layerImage, compressionLevel);
+		PngImage outputImage = this.layer(baseImage, layerImage, compressionLevel, true);
 
 		ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
 		outputImage.writeDataOutputStream(outputBytes);
@@ -73,7 +73,7 @@ public class PngLayerer {
 	}
 
 	/** */
-	public PngImage layer(PngImage baseImage, PngImage layerImage, Integer compressionLevel) throws IOException {
+	public PngImage layer(PngImage baseImage, PngImage layerImage, Integer compressionLevel, boolean concurrent) throws IOException {
 		// FIXME: support low bit depth interlaced images
 		if (baseImage.getInterlace() == 1 && baseImage.getSampleBitCount() < 8) {
             return baseImage;
@@ -102,7 +102,7 @@ public class PngLayerer {
 		this.pngFilterHandler.applyFiltering(filterType, scanlines, layerImage.getSampleBitCount());
 
 		byte[] deflatedImageData = null;
-		byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(scanlines), compressionLevel);
+		byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(scanlines), compressionLevel, concurrent);
 		if (deflatedImageData == null || imageResult.length < deflatedImageData.length) {
 			deflatedImageData = imageResult;
 		}

@@ -1,7 +1,3 @@
-/*
- * $Id$
- * $URL$
- */
 package com.googlecode.pngtastic.core.processing;
 
 import java.io.ByteArrayOutputStream;
@@ -19,7 +15,6 @@ public interface PngCompressionHandler
 	 *
 	 * @param deflatedImageData A stream containing the compressed image data
 	 * @return A byte array containing the uncompressed data
-	 * @throws IOException
 	 */
 	public byte[] inflate(ByteArrayOutputStream deflatedImageData) throws IOException;
 
@@ -30,8 +25,10 @@ public interface PngCompressionHandler
 	 *
 	 * @param inflatedImageData A byte array containing the uncompressed image data
 	 * @param compressionLevel The compression level to use
+	 * @param concurrent Whether to test scanlines for best compressing filter type
+	 *        concurrently. Should be set to true for performance, or false in
+	 *        environments like google app engine that don't allow thread creation.
 	 * @return A byte array containing the compressed image data
-	 * @throws IOException
 	 */
-	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel) throws IOException;
+	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException;
 }
