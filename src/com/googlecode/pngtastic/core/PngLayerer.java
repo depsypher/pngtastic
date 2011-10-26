@@ -80,33 +80,14 @@ public class PngLayerer {
 		List<byte[]> newImageScanlines = this.doLayering(baseImage, layerImage, baseImageScanlines, layerImageScanlines);
 
 		PngFilterType filterType = PngFilterType.NONE;
-		this.log.debug("Applying filter: %s", filterType);
-		List<byte[]> scanlines = this.copyScanlines(newImageScanlines);
-		this.pngFilterHandler.applyFiltering(filterType, scanlines, layerImage.getSampleBitCount());
+		this.pngFilterHandler.applyFiltering(filterType, newImageScanlines, layerImage.getSampleBitCount());
 
-		byte[] deflatedImageData = null;
-		byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(scanlines), compressionLevel, concurrent);
-		if (deflatedImageData == null || imageResult.length < deflatedImageData.length) {
-			deflatedImageData = imageResult;
-		}
+		byte[] imageResult = this.pngCompressionHandler.deflate(this.serialize(newImageScanlines), compressionLevel, concurrent);
 
-		PngChunk imageChunk = new PngChunk(PngChunk.IMAGE_DATA.getBytes(), deflatedImageData);
+		PngChunk imageChunk = new PngChunk(PngChunk.IMAGE_DATA.getBytes(), imageResult);
 		result.addChunk(imageChunk);
 
-		// finish it
-		while (lastBaseChunk != null) {
-			if (lastBaseChunk.isCritical()) {
-				ByteArrayOutputStream bytes = new ByteArrayOutputStream(lastBaseChunk.getLength());
-				DataOutputStream data = new DataOutputStream(bytes);
-
-				data.write(lastBaseChunk.getData());
-				data.close();
-
-				PngChunk newChunk = new PngChunk(lastBaseChunk.getType(), bytes.toByteArray());
-				result.addChunk(newChunk);
-			}
-			lastBaseChunk = itBaseChunks.hasNext() ? itBaseChunks.next() : null;
-		}
+		lastBaseChunk = processTailChunks(result, itBaseChunks, lastBaseChunk);
 
 		long time = System.currentTimeMillis() - start;
 		this.log.debug("Layered in %d milliseconds", time);
@@ -152,6 +133,24 @@ public class PngLayerer {
 	}
 
 	/* */
+    private PngChunk processTailChunks(PngImage result, Iterator<PngChunk> itBaseChunks, PngChunk lastBaseChunk) throws IOException {
+        while (lastBaseChunk != null) {
+            if (lastBaseChunk.isCritical()) {
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream(lastBaseChunk.getLength());
+                DataOutputStream data = new DataOutputStream(bytes);
+
+                data.write(lastBaseChunk.getData());
+                data.close();
+
+                PngChunk newChunk = new PngChunk(lastBaseChunk.getType(), bytes.toByteArray());
+                result.addChunk(newChunk);
+            }
+            lastBaseChunk = itBaseChunks.hasNext() ? itBaseChunks.next() : null;
+        }
+        return lastBaseChunk;
+    }
+
+	/* */
 	private byte[] getInflatedImageData(PngChunk chunk, Iterator<PngChunk> itChunks) throws IOException {
 		ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
 		DataOutputStream imageData = new DataOutputStream(imageBytes);
@@ -189,16 +188,6 @@ public class PngLayerer {
 			}
 		}
 		return rows;
-	}
-
-	/* */
-	private List<byte[]> copyScanlines(List<byte[]> original) {
-		List<byte[]> copy = new ArrayList<byte[]>(original.size());
-		for (byte[] scanline : original) {
-            copy.add(scanline.clone());
-        }
-
-		return copy;
 	}
 
 	/* */
