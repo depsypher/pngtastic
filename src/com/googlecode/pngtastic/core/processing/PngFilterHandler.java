@@ -12,8 +12,8 @@ import com.googlecode.pngtastic.core.PngFilterType;
  *
  * @author rayvanderborght
  */
-public interface PngFilterHandler
-{
+public interface PngFilterHandler {
+
 	/**
 	 * Apply the given filter type to the scanlines provided.
 	 *

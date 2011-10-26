@@ -8,8 +8,7 @@ import java.io.IOException;
  *
  * @author rayvanderborght
  */
-public interface PngCompressionHandler
-{
+public interface PngCompressionHandler {
 	/**
 	 * Inflate (decompress) the compressed image data
 	 *
