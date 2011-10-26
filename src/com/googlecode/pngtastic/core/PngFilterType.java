@@ -6,8 +6,7 @@ package com.googlecode.pngtastic.core;
  *
  * @author rayvanderborght
  */
-public enum PngFilterType
-{
+public enum PngFilterType {
 	ADAPTIVE(-1),	// NOTE: not a real filter type
 	NONE(0),
 	SUB(1),
@@ -23,16 +22,13 @@ public enum PngFilterType
 	private PngFilterType() { }
 
 	/* */
-	private PngFilterType(int i)
-	{
+	private PngFilterType(int i) {
 		this.value = (byte) i;
 	}
 
 	/** */
-	public static PngFilterType forValue(byte value)
-	{
-		for (PngFilterType type : PngFilterType.values())
-		{
+	public static PngFilterType forValue(byte value) {
+		for (PngFilterType type : PngFilterType.values()) {
 			if (type.getValue() == value)
 				return type;
 		}
@@ -40,8 +36,7 @@ public enum PngFilterType
 	}
 
 	/** */
-	public static PngFilterType[] standardValues()
-	{
+	public static PngFilterType[] standardValues() {
 		return new PngFilterType[] { NONE, SUB, UP, AVERAGE, PAETH };
 	}
 }

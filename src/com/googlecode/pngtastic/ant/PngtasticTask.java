@@ -18,8 +18,8 @@ import com.googlecode.pngtastic.core.PngOptimizer;
  *
  * @author rayvanderborght
  */
-public class PngtasticTask extends Task
-{
+public class PngtasticTask extends Task {
+
 	/** */
 	private String toDir;
 	public String getToDir() { return this.toDir; }
@@ -42,41 +42,33 @@ public class PngtasticTask extends Task
 
 	/** */
 	private List<FileSet> filesets = new ArrayList<FileSet>();
-    public void addFileset(FileSet fileset)
-    {
-    	if (!this.filesets.contains(fileset))
-    		this.filesets.add(fileset);
-    }
+	public void addFileset(FileSet fileset) {
+		if (!this.filesets.contains(fileset)) {
+			this.filesets.add(fileset);
+		}
+	}
 
 	/** */
 	@Override
-	public void execute() throws BuildException
-	{
-		try
-		{
+	public void execute() throws BuildException {
+		try {
 			this.convert();
-		}
-		catch(Exception e)
-		{
+		} catch(Exception e) {
 			throw new BuildException(e);
 		}
 	}
 
 	/* */
-	private void convert()
-	{
+	private void convert() {
 		long start = System.currentTimeMillis();
 		PngOptimizer optimizer = new PngOptimizer(this.logLevel);
 
-		for (FileSet fileset : this.filesets)
-		{
+		for (FileSet fileset : this.filesets) {
 			DirectoryScanner ds = fileset.getDirectoryScanner(this.getProject());
-			for (String src : ds.getIncludedFiles())
-			{
+			for (String src : ds.getIncludedFiles()) {
 				String inputPath = fileset.getDir() + "/" + src;
 				String outputPath = null;
-				try
-				{
+				try {
 					String outputDir = (this.toDir == null) ? fileset.getDir().getCanonicalPath() : this.toDir;
 					outputPath = outputDir + "/" + src;
 
@@ -85,9 +77,7 @@ public class PngtasticTask extends Task
 
 					PngImage image = new PngImage(inputPath);
 					optimizer.optimize(image, outputPath + this.fileSuffix, this.compressionLevel);
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					this.log(String.format("Problem optimizing %s. Caught %s", inputPath, e.getMessage()));
 				}
 			}
@@ -97,20 +87,16 @@ public class PngtasticTask extends Task
 	}
 
 	/* */
-	private String makeDirs(String path)
-	{
-		try
-		{
+	private String makeDirs(String path) {
+		try {
 			File out = new File(path);
-			if (!out.exists())
-			{
-				if (!out.mkdirs())
+			if (!out.exists()) {
+				if (!out.mkdirs()) {
 					throw new IOException("Couldn't create path: " + path);
+				}
 			}
 			path = out.getCanonicalPath();
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			throw new BuildException("Bad path: " + path);
 		}
 		return path;

@@ -14,8 +14,8 @@ package com.googlecode.pngtastic.core;
  *
  * @author rayvanderborght
  */
-public enum PngImageType
-{
+public enum PngImageType {
+
 	GREYSCALE(0),
 	TRUECOLOR(2),
 	INDEXED_COLOR(3),
@@ -26,16 +26,13 @@ public enum PngImageType
 	private int colorType;
 
 	/** */
-	private PngImageType(int colorType)
-	{
+	private PngImageType(int colorType) {
 		this.colorType = colorType;
 	}
 
 	/** */
-	public static PngImageType forColorType(int colorType)
-	{
-		switch (colorType)
-		{
+	public static PngImageType forColorType(int colorType) {
+		switch (colorType) {
 			case 0:
 				return PngImageType.GREYSCALE;
 
@@ -62,10 +59,8 @@ public enum PngImageType
 	 *
 	 * @return The number of channels for this image color type
 	 */
-	public int channelCount()
-	{
-		switch (this.colorType)
-		{
+	public int channelCount() {
+		switch (this.colorType) {
 			case 0:
 			case 3:
 				return 1;

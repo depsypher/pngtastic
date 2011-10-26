@@ -8,8 +8,8 @@ import java.util.zip.CRC32;
  *
  * @author rayvanderborght
  */
-public class PngChunk
-{
+public class PngChunk {
+
 	/** critical chunks */
 	public static final String IMAGE_HEADER		= "IHDR";
 	public static final String PALETTE			= "PLTE";
@@ -36,97 +36,79 @@ public class PngChunk
 	private final byte[] data;
 
 	/** */
-	public PngChunk(byte[] type, byte[] data)
-	{
+	public PngChunk(byte[] type, byte[] data) {
 		this.type = (type == null) ? null : type.clone();
 		this.data = (data == null) ? null : data.clone();
 	}
 
 	/** */
-	public String getTypeString()
-	{
-		try
-		{
+	public String getTypeString() {
+		try {
 			return new String(this.type, "UTF8");
-		}
-		catch(UnsupportedEncodingException e)
-		{
+		} catch(UnsupportedEncodingException e) {
 			return "";
 		}
 	}
 
 	/** */
-	public byte[] getType()
-	{
+	public byte[] getType() {
 		return (this.type == null) ? null : this.type.clone();
 	}
 
 	/** */
-	public byte[] getData()
-	{
+	public byte[] getData() {
 		return (this.data == null) ? null : this.data.clone();
 	}
 
 	/** */
-	public int getLength()
-	{
+	public int getLength() {
 		return this.data.length;
 	}
 
 	/** */
-	public long getWidth()
-	{
+	public long getWidth() {
 		return this.getUnsignedInt(0);
 	}
 
 	/** */
-	public long getHeight()
-	{
+	public long getHeight() {
 		return this.getUnsignedInt(4);
 	}
 
 	/** */
-	public short getBitDepth()
-	{
+	public short getBitDepth() {
 		return this.getUnsignedByte(8);
 	}
 
 	/** */
-	public short getColorType()
-	{
+	public short getColorType() {
 		return this.getUnsignedByte(9);
 	}
 
 	/** */
-	public short getCompression()
-	{
+	public short getCompression() {
 		return this.getUnsignedByte(10);
 	}
 
 	/** */
-	public short getFilter()
-	{
+	public short getFilter() {
 		return this.getUnsignedByte(11);
 	}
 
 	/** */
-	public short getInterlace()
-	{
+	public short getInterlace() {
 		return this.getUnsignedByte(12);
 	}
 
 	/** */
-	public void setInterlace(byte interlace)
-	{
+	public void setInterlace(byte interlace) {
 		this.data[12] = interlace;
 	}
 
 	/** */
-	public long getUnsignedInt(int offset)
-	{
+	public long getUnsignedInt(int offset) {
 		long value = 0;
-		for (int i = 0; i < 4; i++)
-		{
+		for (int i = 0; i < 4; i++) {
 			value += (this.data[offset + i] & 0xff) << ((3 - i) * 8);
 		}
 
@@ -134,14 +116,12 @@ public class PngChunk
 	}
 
 	/** */
-	public short getUnsignedByte(int offset)
-	{
+	public short getUnsignedByte(int offset) {
 		return (short) (this.data[offset] & 0x00ff);
 	}
 
 	/** */
-	public boolean isCritical()
-	{
+	public boolean isCritical() {
 		String type = this.getTypeString().toUpperCase();
 		return type.equals(IMAGE_HEADER)
 			|| type.equals(PALETTE)
@@ -150,8 +130,7 @@ public class PngChunk
 	}
 
 	/** */
-	public boolean isRequired()
-	{
+	public boolean isRequired() {
 		return this.isCritical()
 			|| TRANSPARANCY.equals(this.getTypeString().toUpperCase())
 			|| IMAGE_GAMA.equals(this.getTypeString().toUpperCase())
@@ -159,14 +138,12 @@ public class PngChunk
 	}
 
 	/** */
-	public boolean verifyCRC(long crc)
-	{
+	public boolean verifyCRC(long crc) {
 		return (this.getCRC() == crc);
 	}
 
 	/** */
-	public long getCRC()
-	{
+	public long getCRC() {
 		CRC32 crc32 = new CRC32();
 		crc32.update(this.type);
 		crc32.update(this.data);
@@ -178,12 +155,10 @@ public class PngChunk
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		StringBuilder result = new StringBuilder();
 		result.append('[').append(this.getTypeString()).append(']').append('\n');
-		if (PngChunk.IMAGE_HEADER.equals(this.getTypeString().toUpperCase()))
-		{
+		if (PngChunk.IMAGE_HEADER.equals(this.getTypeString().toUpperCase())) {
 			result.append("Size:        ").append(this.getWidth()).append('x').append(this.getHeight()).append('\n');
 			result.append("Bit depth:   ").append(this.getBitDepth()).append('\n');
 			result.append("Image type:  ").append(this.getColorType()).append(" (").append(PngImageType.forColorType(this.getColorType())).append(")\n");
@@ -192,12 +167,10 @@ public class PngChunk
 			result.append("Filter:      ").append(this.getFilter()).append('\n');
 			result.append("Interlace:   ").append(this.getInterlace());
 		}
-		if (PngChunk.TEXTUAL_DATA.equals(this.getTypeString().toUpperCase()))
-		{
+		if (PngChunk.TEXTUAL_DATA.equals(this.getTypeString().toUpperCase())) {
 			result.append("Text:        ").append(new String(this.data));
 		}
-		if (PngChunk.IMAGE_DATA.equals(this.getTypeString().toUpperCase()))
-		{
+		if (PngChunk.IMAGE_DATA.equals(this.getTypeString().toUpperCase())) {
 			result.append("Image Data:  ")
 				.append("length=").append(this.getLength()).append(", data=");
 

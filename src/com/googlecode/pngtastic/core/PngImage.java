@@ -19,8 +19,8 @@ import java.util.List;
  *
  * @author rayvanderborght
  */
-public class PngImage
-{
+public class PngImage {
+
 	/** */
 	private final Logger log;
 
@@ -61,39 +61,33 @@ public class PngImage
 	private PngImageType imageType;
 
 	/** */
-	public PngImage()
-	{
+	public PngImage() {
 		this.log = new Logger(Logger.NONE);
 	}
 
 	/** */
-	public PngImage(Logger log)
-	{
+	public PngImage(Logger log) {
 		this.log = log;
 	}
 
 	/** */
-	public PngImage(String fileName) throws FileNotFoundException
-	{
+	public PngImage(String fileName) throws FileNotFoundException {
 		this(new BufferedInputStream(new FileInputStream(fileName)));
 		this.fileName = fileName;
 	}
 
 	/** */
-	public PngImage(InputStream ins)
-	{
+	public PngImage(InputStream ins) {
 		this();
 
-		try
-		{
+		try {
 			DataInputStream dis = new DataInputStream(ins);
 			readSignature(dis);
 
 			int length = 0;
 			PngChunk chunk = null;
 
-			do
-			{
+			do {
 				length = this.getChunkLength(dis);
 
 				byte[] type = this.getChunkType(dis);
@@ -102,26 +96,21 @@ public class PngImage
 
 				chunk = new PngChunk(type, data);
 
-				if (!chunk.verifyCRC(crc))
+				if (!chunk.verifyCRC(crc)) {
 					throw new PngException("Corrupted file, crc check failed");
+				}
 
 				this.addChunk(chunk);
-			}
-			while (length > 0 && !PngChunk.IMAGE_TRAILER.equals(chunk.getTypeString()));
-		}
-		catch (IOException e)
-		{
+			} while (length > 0 && !PngChunk.IMAGE_TRAILER.equals(chunk.getTypeString()));
+		} catch (IOException e) {
 			this.log.error("Error: %s", e.getMessage());
-		}
-		catch (PngException e)
-		{
+		} catch (PngException e) {
 			this.log.error("Error: %s", e.getMessage());
 		}
 	}
 
 	/** */
-	public File export(String fileName, byte[] bytes) throws FileNotFoundException, IOException
-	{
+	public File export(String fileName, byte[] bytes) throws FileNotFoundException, IOException {
 		File out = new File(fileName);
 		this.writeFileOutputStream(out, bytes);
 
@@ -129,18 +118,15 @@ public class PngImage
 	}
 
 	/** */
-	FileOutputStream writeFileOutputStream(File out, byte[] bytes) throws FileNotFoundException, IOException
-	{
+	FileOutputStream writeFileOutputStream(File out, byte[] bytes) throws FileNotFoundException, IOException {
 		FileOutputStream outs = null;
-		try
-		{
+		try {
 			outs = new FileOutputStream(out);
 			outs.write(bytes);
-		}
-		finally
-		{
-			if (outs != null)
+		} finally {
+			if (outs != null) {
 				outs.close();
+			}
 		}
 
 		return outs;
