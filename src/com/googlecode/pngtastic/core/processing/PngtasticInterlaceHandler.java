@@ -1,7 +1,3 @@
-/*
- * $Id$
- * $URL$
- */
 package com.googlecode.pngtastic.core.processing;
 
 import java.util.ArrayList;
@@ -15,8 +11,8 @@ import com.googlecode.pngtastic.core.PngException;
  *
  * @author rayvanderborght
  */
-public class PngtasticInterlaceHandler implements PngInterlaceHandler
-{
+public class PngtasticInterlaceHandler implements PngInterlaceHandler {
+
 	/** */
 	private final Logger log;
 
@@ -30,8 +26,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler
 	private static final int[] interlaceRowOffset		= new int[] { 0, 0, 4, 0, 2, 0, 1 };
 
 	/** */
-	public PngtasticInterlaceHandler(Logger log, PngFilterHandler pngFilterHandler)
-	{
+	public PngtasticInterlaceHandler(Logger log, PngFilterHandler pngFilterHandler) {
 		this.log = log;
 		this.pngFilterHandler = pngFilterHandler;
 	}
@@ -56,8 +51,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData)
-	{
+	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData) {
 		this.log.debug("Deinterlacing");
 
 		List<byte[]> results = new ArrayList<byte[]>();
@@ -65,33 +59,26 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler
 		byte[][] rows = new byte[height][Double.valueOf(Math.ceil(width * sampleBitCount / 8D)).intValue() + 1];
 
 		int subImageOffset = 0;
-		for (int pass = 0; pass < 7; pass++)
-		{
+		for (int pass = 0; pass < 7; pass++) {
 			int subImageRows = height / interlaceRowFrequency[pass];
 			int subImageColumns = width / interlaceColumnFrequency[pass];
 			int rowLength = Double.valueOf(Math.ceil(subImageColumns * sampleBitCount / 8D)).intValue() + 1;
 
 			byte[] previousRow = new byte[rowLength];
 			int offset = 0;
-			for (int i = 0; i < subImageRows; i++)
-			{
+			for (int i = 0; i < subImageRows; i++) {
 				offset = subImageOffset + i * rowLength;
 				byte[] row = new byte[rowLength];
 				System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
-				try
-				{
+				try {
 					this.pngFilterHandler.deFilter(row, previousRow, sampleBitCount);
-				}
-				catch (PngException e)
-				{
+				} catch (PngException e) {
 					this.log.error("Error: %s", e.getMessage());
 				}
 
 				int samples = (row.length - 1) / sampleSize;
-				for (int sample = 0; sample < samples; sample++)
-				{
-					for (int b = 0; b < sampleSize; b++)
-					{
+				for (int sample = 0; sample < samples; sample++) {
+					for (int b = 0; b < sampleSize; b++) {
 						int cf = interlaceColumnFrequency[pass] * sampleSize;
 						int co = interlaceColumnOffset[pass] * sampleSize;
 						int rf = interlaceRowFrequency[pass];
@@ -103,8 +90,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler
 			}
 			subImageOffset = offset + rowLength;
 		}
-		for (int i = 0; i < rows.length; i++)
-		{
+		for (int i = 0; i < rows.length; i++) {
 			results.add(rows[i]);
 		}
 
