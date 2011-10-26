@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -27,7 +28,10 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
     private final Logger log;
 
     /** */
-    private static final List<Integer> compressionStrategies = Arrays.asList(Deflater.DEFAULT_STRATEGY, Deflater.FILTERED, Deflater.HUFFMAN_ONLY);
+    private static final List<Integer> compressionStrategies = Arrays.asList(
+            Deflater.DEFAULT_STRATEGY,
+            Deflater.FILTERED,
+            Deflater.HUFFMAN_ONLY);
 
     /** */
     public PngtasticCompressionHandler(Logger log) {
@@ -61,7 +65,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 
     	List<byte[]> results = (concurrent)
         		? this.deflateImageDataConcurrently(inflatedImageData, compressionLevel)
-        		: this.deflateImageDataSerially(inflatedImageData, compressionLevel);
+        		: this.deflateImageDataSerially(inflatedImageData, compressionLevel, Deflater.DEFAULT_STRATEGY);
 
         byte[] result = null;
         for (int i = 0; i < results.size(); i++) {
@@ -110,10 +114,13 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
     }
 
     /* */
-    private List<byte[]> deflateImageDataSerially(final byte[] inflatedImageData, final Integer compressionLevel) {
+    private List<byte[]> deflateImageDataSerially(byte[] inflatedImageData, Integer compressionLevel, Integer compressionStrategy) {
         List<byte[]> results = new ArrayList<byte[]>();
 
-        for (final int strategy : compressionStrategies) {
+        List<Integer> strategies = (compressionStrategy == null) ? compressionStrategies
+                : Collections.singletonList(compressionStrategy);
+
+        for (final int strategy : strategies) {
         	try {
         		results.add(PngtasticCompressionHandler.this.deflateImageData(inflatedImageData, strategy, compressionLevel));
 	        } catch (Throwable e) {

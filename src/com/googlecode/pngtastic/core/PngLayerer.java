@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -54,26 +53,10 @@ public class PngLayerer {
 	}
 
 	/** */
-	public PngImage layer(PngImage baseImage, PngImage layerImage, String outputFileName, Integer compressionLevel) throws FileNotFoundException, IOException {
-		this.log.debug("=== LAYERING: " + baseImage.getFileName() + ", " + layerImage.getFileName() + " ===");
-
-		long start = System.currentTimeMillis();
-		PngImage outputImage = this.layer(baseImage, layerImage, compressionLevel, true);
-
-		ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
-		outputImage.writeDataOutputStream(outputBytes);
-
-		PngImage results = new PngImage(new ByteArrayInputStream(outputBytes.toByteArray()));
-		results.setFileName(outputFileName);
-
-		long time = System.currentTimeMillis() - start;
-		this.log.debug("Layered in %d milliseconds", time);
-
-		return results;
-	}
-
-	/** */
 	public PngImage layer(PngImage baseImage, PngImage layerImage, Integer compressionLevel, boolean concurrent) throws IOException {
+	    this.log.debug("=== LAYERING: " + baseImage.getFileName() + ", " + layerImage.getFileName() + " ===");
+	    long start = System.currentTimeMillis();
+
 		// FIXME: support low bit depth interlaced images
 		if (baseImage.getInterlace() == 1 && baseImage.getSampleBitCount() < 8) {
             return baseImage;
@@ -124,6 +107,9 @@ public class PngLayerer {
 			}
 			lastBaseChunk = itBaseChunks.hasNext() ? itBaseChunks.next() : null;
 		}
+
+		long time = System.currentTimeMillis() - start;
+		this.log.debug("Layered in %d milliseconds", time);
 
 		return result;
 	}

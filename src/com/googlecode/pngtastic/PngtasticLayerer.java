@@ -1,11 +1,6 @@
-/*
- * $Id: Pngtastic.java 36 2011-10-21 22:15:53Z voidstar $
- * $URL: https://pngtastic.googlecode.com/svn/trunk/pngtastic/src/com/googlecode/pngtastic/Pngtastic.java $
- */
 package com.googlecode.pngtastic;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,34 +36,24 @@ public class PngtasticLayerer
         	PngImage baseImage = new PngImage(fileNames[0]);
 	        for (int i = 1; i < fileNames.length; i++) {
 	        	String file = fileNames[i];
-                String outputPath = toDir + "/" + file;
-                this.makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
                 PngImage image = new PngImage(file);
-                baseImage = layerer.layer(baseImage, image, toDir + "/" + outFile, compressionLevel);
+                baseImage = layerer.layer(baseImage, image, compressionLevel, false);
 	        }
 			ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
 			baseImage.writeDataOutputStream(outputBytes);
 
-	        baseImage.export(toDir + "/" + outFile, outputBytes.toByteArray());
-	        optimizer.optimize(baseImage, toDir + "/" + outFile, compressionLevel);
+			String file = toDir + "/" + outFile;
+			baseImage.setFileName(file);
+			baseImage.export(file, outputBytes.toByteArray());
+
+	        optimizer.optimize(baseImage, file, compressionLevel);
         } catch (IOException e) {
         	e.printStackTrace();
         }
 
         System.out.println(String.format("Processed %d files in %d milliseconds, saving %d bytes",
         		optimizer.getStats().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
-    }
-
-    /* */
-    private String makeDirs(String path) throws IOException {
-        File out = new File(path);
-        if (!out.exists()) {
-            if (!out.mkdirs()) {
-                throw new IOException("Couldn't create path: " + path);
-            }
-        }
-        return out.getCanonicalPath();
     }
 
     /** */
