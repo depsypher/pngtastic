@@ -1,7 +1,3 @@
-/*
- * $Id$
- * $URL$
- */
 package com.googlecode.pngtastic.ant;
 
 import java.io.File;

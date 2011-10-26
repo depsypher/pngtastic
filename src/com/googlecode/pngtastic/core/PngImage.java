@@ -1,7 +1,3 @@
-/*
- * $Id$
- * $URL$
- */
 package com.googlecode.pngtastic.core;
 
 import java.io.BufferedInputStream;
