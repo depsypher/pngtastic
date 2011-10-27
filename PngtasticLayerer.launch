@@ -10,6 +10,6 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.googlecode.pngtastic.PngtasticLayerer"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--toDir . --logLevel debug --outFile layered.png images/robohash/bg1/000#robotBG-11.png images/robohash/blue/003#01Body/000#blue_body-10.png images/robohash/blue/004#02Face/000#blue_face-07.png images/robohash/blue/000#Mouth/000#blue_mouth-10.png images/robohash/blue/001#Eyes/000#blue_eyes-07.png images/robohash/blue/002#Accessory/009#blue_accessory-08.png"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--toDir . --logLevel debug --outFile build/layered.png --compressionLevel 9 images/robohash/bg1/000#robotBG-11.png images/robohash/blue/003#01Body/000#blue_body-10.png images/robohash/blue/004#02Face/000#blue_face-07.png images/robohash/blue/000#Mouth/000#blue_mouth-10.png images/robohash/blue/001#Eyes/000#blue_eyes-07.png images/robohash/blue/002#Accessory/009#blue_accessory-08.png"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="pngtastic"/>
 </launchConfiguration>

@@ -10,6 +10,6 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.googlecode.pngtastic.Pngtastic"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--toDir . --logLevel debug --fileSuffix .foo.png images/pngsuite/basi2c08.png"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--toDir ./build --logLevel debug --fileSuffix .foo.png images/amigaball.png"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="pngtastic"/>
 </launchConfiguration>
