@@ -87,7 +87,7 @@ public class PngLayerer {
 		PngChunk imageChunk = new PngChunk(PngChunk.IMAGE_DATA.getBytes(), imageResult);
 		result.addChunk(imageChunk);
 
-		lastBaseChunk = processTailChunks(result, itBaseChunks, lastBaseChunk);
+		this.processTailChunks(result, itBaseChunks, lastBaseChunk);
 
 		long time = System.currentTimeMillis() - start;
 		this.log.debug("Layered in %d milliseconds", time);
