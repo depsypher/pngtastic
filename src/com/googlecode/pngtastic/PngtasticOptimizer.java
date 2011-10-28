@@ -18,9 +18,9 @@ import com.googlecode.pngtastic.core.PngOptimizer;
  *
  * @author rayvanderborght
  */
-public class Pngtastic {
+public class PngtasticOptimizer {
 	/** */
-	private static final String HELP = "java -jar pngtastic-x.x.x.jar com.googlecode.pngtastic.Pngtastic [options] file1 [file2 ..]\n"
+	private static final String HELP = "java -jar pngtastic-x.x.jar com.googlecode.pngtastic.PngtasticOptimizer [options] file1 [file2 ..]\n"
 			+ "Options:\n"
 			+ "  --toDir            the directory where optimized files go (will be created if it doesn't exist)\n"
 			+ "  --fileSuffix       string appended to the optimized files (file.png can become file.png.optimized.png)\n"
@@ -28,7 +28,7 @@ public class Pngtastic {
 			+ "  --logLevel         the level of logging output (none, debug, info, or error)\n";
 
 	/** */
-	public Pngtastic(String toDir, String[] fileNames, String fileSuffix, Integer compressionLevel, String logLevel) {
+	public PngtasticOptimizer(String toDir, String[] fileNames, String fileSuffix, Integer compressionLevel, String logLevel) {
 		long start = System.currentTimeMillis();
 
 		PngOptimizer optimizer = new PngOptimizer(logLevel);
@@ -87,7 +87,7 @@ public class Pngtastic {
 		Integer compressionLevel = safeInteger(options.get("--compressionLevel"));
 		String logLevel = options.get("--logLevel");
 
-		new Pngtastic(toDir, files, fileSuffix, compressionLevel, logLevel);
+		new PngtasticOptimizer(toDir, files, fileSuffix, compressionLevel, logLevel);
 	}
 
 	/* */

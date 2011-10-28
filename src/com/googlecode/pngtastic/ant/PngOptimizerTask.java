@@ -18,7 +18,7 @@ import com.googlecode.pngtastic.core.PngOptimizer;
  *
  * @author rayvanderborght
  */
-public class PngtasticTask extends Task {
+public class PngOptimizerTask extends Task {
 
 	/** */
 	private String toDir;

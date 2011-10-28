@@ -19,7 +19,7 @@ import com.googlecode.pngtastic.core.PngOptimizer;
 public class PngtasticLayerer
 {
     /** */
-    private static final String HELP = "java -cp pngtastic-x.x.x.jar com.googlecode.pngtastic.PngtasticLayerer [options] file1 [file2 ..]\n"
+    private static final String HELP = "java -cp pngtastic-x.x.jar com.googlecode.pngtastic.PngtasticLayerer [options] file1 [file2 ..]\n"
             + "Options:\n"
             + "  --toDir            the directory where the layered file goes (will be created if it doesn't exist)\n"
             + "  --outFile          the filename of the layered file\n"
