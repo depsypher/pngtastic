@@ -133,13 +133,11 @@ public class PngImage {
 	}
 
 	/** */
-	public DataOutputStream writeDataOutputStream(OutputStream output) throws IOException
-	{
+	public DataOutputStream writeDataOutputStream(OutputStream output) throws IOException {
 		DataOutputStream outs = new DataOutputStream(output);
 		outs.writeLong(PngImage.SIGNATURE);
 
-		for (PngChunk chunk : this.getChunks())
-		{
+		for (PngChunk chunk : this.getChunks()) {
 			this.log.debug("export: %s", chunk.toString());
 			outs.writeInt(chunk.getLength());
 			outs.write(chunk.getType());
@@ -153,10 +151,8 @@ public class PngImage {
 	}
 
 	/** */
-	public void addChunk(PngChunk chunk)
-	{
-		if (PngChunk.IMAGE_HEADER.equals(chunk.getTypeString()))
-		{
+	public void addChunk(PngChunk chunk) {
+		if (PngChunk.IMAGE_HEADER.equals(chunk.getTypeString())) {
 			this.width = chunk.getWidth();
 			this.height = chunk.getHeight();
 			this.bitDepth = chunk.getBitDepth();
@@ -167,58 +163,48 @@ public class PngImage {
 	}
 
 	/** */
-	public byte[] getImageData()
-	{
-		try
-		{
+	public byte[] getImageData() {
+		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 			// Write all the IDAT data
-			for (PngChunk chunk : this.getChunks())
-			{
-				if (chunk.getTypeString().equals("IDAT"))
-					out.write(chunk.getData());
+			for (PngChunk chunk : this.getChunks()) {
+				if (chunk.getTypeString().equals("IDAT")) {
+                    out.write(chunk.getData());
+                }
 			}
 			return out.toByteArray();
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			System.out.println("Couldn't get image data: " + e);
 		}
 		return null;
 	}
 
 	/** */
-	public int getSampleBitCount()
-	{
+	public int getSampleBitCount() {
 		this.imageType = (this.imageType == null) ? PngImageType.forColorType(this.getColorType()) : this.imageType;
 		return this.imageType.channelCount() * this.bitDepth;
 	}
 
 	/* */
-	private int getChunkLength(DataInputStream ins) throws IOException
-	{
+	private int getChunkLength(DataInputStream ins) throws IOException {
 		return ins.readInt();
 	}
 
 	/* */
-	private byte[] getChunkType(InputStream ins) throws PngException
-	{
+	private byte[] getChunkType(InputStream ins) throws PngException {
 		return this.getChunkData(ins, 4);
 	}
 
 	/* */
-	private byte[] getChunkData(InputStream ins, int length) throws PngException
-	{
+	private byte[] getChunkData(InputStream ins, int length) throws PngException {
 		byte[] data = new byte[length];
-		try
-		{
+		try {
 			int actual = ins.read(data);
-			if (actual < length)
-				throw new PngException(String.format("Expected %d bytes but got %d", length, actual));
-		}
-		catch(IOException e)
-		{
+			if (actual < length) {
+			    throw new PngException(String.format("Expected %d bytes but got %d", length, actual));
+			}
+		} catch(IOException e) {
 			throw new PngException("Error reading chunk data", e);
 		}
 
@@ -226,18 +212,17 @@ public class PngImage {
 	}
 
 	/* */
-	private long getChunkCrc(DataInputStream ins) throws IOException
-	{
+	private long getChunkCrc(DataInputStream ins) throws IOException {
 		int i = ins.readInt();
 		long crc = i & 0x00000000ffffffffL; // Make it unsigned.
 		return crc;
 	}
 
 	/* */
-	private static void readSignature(DataInputStream ins) throws PngException, IOException
-	{
+	private static void readSignature(DataInputStream ins) throws PngException, IOException {
 		long signature = ins.readLong();
-		if (signature != PngImage.SIGNATURE)
-			throw new PngException("Bad png signature");
+		if (signature != PngImage.SIGNATURE) {
+            throw new PngException("Bad png signature");
+        }
 	}
 }

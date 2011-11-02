@@ -12,9 +12,9 @@ Pngtastic - PNG image optimizer
 		</fileset>
 	</path>
 
-    <path id="javadoc.classpath">
+	<path id="javadoc.classpath">
 		<path refid="project.classpath" />
-    </path>
+	</path>
 
 	<!--
 	Clean up
