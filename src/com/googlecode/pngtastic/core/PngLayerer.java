@@ -17,7 +17,6 @@ import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
-
 /**
  * Layers PNG images on top of one another. Currently expects two images of the
  * same size. Both images must be truecolor images, and the layer image
@@ -54,13 +53,13 @@ public class PngLayerer {
 
 	/** */
 	public PngImage layer(PngImage baseImage, PngImage layerImage, Integer compressionLevel, boolean concurrent) throws IOException {
-	    this.log.debug("=== LAYERING: " + baseImage.getFileName() + ", " + layerImage.getFileName() + " ===");
-	    long start = System.currentTimeMillis();
+		this.log.debug("=== LAYERING: " + baseImage.getFileName() + ", " + layerImage.getFileName() + " ===");
+		long start = System.currentTimeMillis();
 
 		// FIXME: support low bit depth interlaced images
 		if (baseImage.getInterlace() == 1 && baseImage.getSampleBitCount() < 8) {
-            return baseImage;
-        }
+			return baseImage;
+		}
 
 		PngImage result = new PngImage(this.log);
 		result.setInterlace((short) 0);
@@ -112,8 +111,8 @@ public class PngLayerer {
 		while (itChunks.hasNext()) {
 			chunk = itChunks.next();
 			if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString())) {
-                break;
-            }
+				break;
+			}
 
 			if (chunk.isRequired()) {
 				ByteArrayOutputStream bytes = new ByteArrayOutputStream(chunk.getLength());
@@ -133,22 +132,22 @@ public class PngLayerer {
 	}
 
 	/* */
-    private PngChunk processTailChunks(PngImage result, Iterator<PngChunk> itBaseChunks, PngChunk lastBaseChunk) throws IOException {
-        while (lastBaseChunk != null) {
-            if (lastBaseChunk.isCritical()) {
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream(lastBaseChunk.getLength());
-                DataOutputStream data = new DataOutputStream(bytes);
+	private PngChunk processTailChunks(PngImage result, Iterator<PngChunk> itBaseChunks, PngChunk lastBaseChunk) throws IOException {
+		while (lastBaseChunk != null) {
+			if (lastBaseChunk.isCritical()) {
+				ByteArrayOutputStream bytes = new ByteArrayOutputStream(lastBaseChunk.getLength());
+				DataOutputStream data = new DataOutputStream(bytes);
 
-                data.write(lastBaseChunk.getData());
-                data.close();
+				data.write(lastBaseChunk.getData());
+				data.close();
 
-                PngChunk newChunk = new PngChunk(lastBaseChunk.getType(), bytes.toByteArray());
-                result.addChunk(newChunk);
-            }
-            lastBaseChunk = itBaseChunks.hasNext() ? itBaseChunks.next() : null;
-        }
-        return lastBaseChunk;
-    }
+				PngChunk newChunk = new PngChunk(lastBaseChunk.getType(), bytes.toByteArray());
+				result.addChunk(newChunk);
+			}
+			lastBaseChunk = itBaseChunks.hasNext() ? itBaseChunks.next() : null;
+		}
+		return lastBaseChunk;
+	}
 
 	/* */
 	private byte[] getInflatedImageData(PngChunk chunk, Iterator<PngChunk> itChunks) throws IOException {
@@ -270,15 +269,15 @@ public class PngLayerer {
 				}
 
 				if (layerAlpha == 0) {
-                    dos.writeByte(baseRed);
-                    dos.writeByte(baseGreen);
-                    dos.writeByte(baseBlue);
-                    dos.writeByte(baseAlpha);
+					dos.writeByte(baseRed);
+					dos.writeByte(baseGreen);
+					dos.writeByte(baseBlue);
+					dos.writeByte(baseAlpha);
 				} else {
-				    dos.writeByte((baseRed * (255 - layerAlpha) + layerRed * layerAlpha) / 255);
-				    dos.writeByte((baseGreen * (255 - layerAlpha) + layerGreen * layerAlpha) / 255);
-				    dos.writeByte((baseBlue * (255 - layerAlpha) + layerBlue * layerAlpha) / 255);
-				    dos.writeByte(255);
+					dos.writeByte((baseRed * (255 - layerAlpha) + layerRed * layerAlpha) / 255);
+					dos.writeByte((baseGreen * (255 - layerAlpha) + layerGreen * layerAlpha) / 255);
+					dos.writeByte((baseBlue * (255 - layerAlpha) + layerBlue * layerAlpha) / 255);
+					dos.writeByte(255);
 				}
 			}
 			dos.flush();

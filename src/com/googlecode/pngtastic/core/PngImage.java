@@ -170,8 +170,8 @@ public class PngImage {
 			// Write all the IDAT data
 			for (PngChunk chunk : this.getChunks()) {
 				if (chunk.getTypeString().equals("IDAT")) {
-                    out.write(chunk.getData());
-                }
+					out.write(chunk.getData());
+				}
 			}
 			return out.toByteArray();
 		} catch (IOException e) {
@@ -202,7 +202,7 @@ public class PngImage {
 		try {
 			int actual = ins.read(data);
 			if (actual < length) {
-			    throw new PngException(String.format("Expected %d bytes but got %d", length, actual));
+				throw new PngException(String.format("Expected %d bytes but got %d", length, actual));
 			}
 		} catch(IOException e) {
 			throw new PngException("Error reading chunk data", e);
@@ -222,7 +222,7 @@ public class PngImage {
 	private static void readSignature(DataInputStream ins) throws PngException, IOException {
 		long signature = ins.readLong();
 		if (signature != PngImage.SIGNATURE) {
-            throw new PngException("Bad png signature");
-        }
+			throw new PngException("Bad png signature");
+		}
 	}
 }
