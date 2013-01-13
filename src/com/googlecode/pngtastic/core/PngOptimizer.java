@@ -32,15 +32,12 @@ import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
  */
 public class PngOptimizer {
 
-	/** */
 	private final Logger log;
 
-	/** */
 	private PngFilterHandler pngFilterHandler;
 	private PngInterlaceHandler pngInterlaceHander;
 	private PngCompressionHandler pngCompressionHandler;
 
-	/** */
 	private final List<Stats> stats = new ArrayList<Stats>();
 	public List<Stats> getStats() { return stats; }
 
@@ -94,11 +91,12 @@ public class PngOptimizer {
 		log.debug("Original length in bytes: %d (%s)", originalFileSize, image.getFileName());
 		log.debug("Final length in bytes: %d (%s)", optimizedFileSize, outputFileName);
 
-		if (optimizedFileSize <= originalFileSize) {
-			log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s", (originalFileSize - optimizedFileSize) / Float.valueOf(originalFileSize) * 100, originalFileSize, optimizedFileSize, originalFileSize - optimizedFileSize, outputFileName);
-		} else {
-			log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s", -(optimizedFileSize - originalFileSize) / Float.valueOf(originalFileSize) * 100, originalFileSize, optimizedFileSize, -(optimizedFileSize - originalFileSize), outputFileName);
-		}
+		long fileSizeDifference = (optimizedFileSize <= originalFileSize)
+				? (originalFileSize - optimizedFileSize) : -(optimizedFileSize - originalFileSize);
+
+		log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s",
+				fileSizeDifference / Float.valueOf(originalFileSize) * 100,
+				originalFileSize, optimizedFileSize, fileSizeDifference, outputFileName);
 
 		stats.add(new Stats(originalFileSize, optimizedFileSize));
 	}
@@ -120,7 +118,7 @@ public class PngOptimizer {
 		byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
 		log.debug("original size=%d", image.getImageData().length);
 
-		int scanlineLength = Double.valueOf(Math.ceil(Long.valueOf(image.getWidth() * image.getSampleBitCount()) / 8F)).intValue() + 1;
+		int scanlineLength = (int)(Math.ceil(image.getWidth() * image.getSampleBitCount() / 8F)) + 1;
 
 		List<byte[]> originalScanlines = (image.getInterlace() == 1)
 				? pngInterlaceHander.deInterlace((int) image.getWidth(), (int) image.getHeight(), image.getSampleBitCount(), inflatedImageData)
@@ -365,7 +363,6 @@ public class PngOptimizer {
 			this.alpha = alpha;
 		}
 
-		/** */
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -377,7 +374,6 @@ public class PngOptimizer {
 			return result;
 		}
 
-		/** */
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
@@ -399,19 +395,14 @@ public class PngOptimizer {
 
 	/**
 	 * Holds info about an image file optimization
-	 *
-	 * @author ray
 	 */
 	public static class Stats {
-		/** */
 		private long originalFileSize;
 		public long getOriginalFileSize() { return originalFileSize; }
 
-		/** */
 		private long optimizedFileSize;
 		public long getOptimizedFileSize() { return optimizedFileSize; }
 
-		/** */
 		public Stats(long originalFileSize, long optimizedFileSize) {
 			this.originalFileSize = originalFileSize;
 			this.optimizedFileSize = optimizedFileSize;
