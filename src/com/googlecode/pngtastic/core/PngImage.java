@@ -21,10 +21,8 @@ import java.util.List;
  */
 public class PngImage {
 
-	/** */
 	private final Logger log;
 
-	/** */
 	public static final long SIGNATURE = 0x89504e470d0a1a0aL;
 
 	/** */

@@ -26,15 +26,12 @@ import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
  */
 public class PngLayerer {
 
-	/** */
 	private final Logger log;
 
-	/** */
 	private PngFilterHandler pngFilterHandler;
 	private PngInterlaceHandler pngInterlaceHander;
 	private PngCompressionHandler pngCompressionHandler;
 
-	/** */
 	private final List<Stats> stats = new ArrayList<Stats>();
 	public List<Stats> getStats() { return this.stats; }
 

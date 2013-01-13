@@ -10,14 +10,12 @@ import java.util.List;
  */
 public class Logger {
 
-	/** */
 	static final String NONE = "NONE";
 	static final String DEBUG = "DEBUG";
 	static final String INFO = "INFO";
 	static final String ERROR = "ERROR";
 	private static final List<String> LOG_LEVELS = Arrays.asList(NONE, DEBUG, INFO, ERROR);
 
-	/** */
 	private final String logLevel;
 
 	/** */

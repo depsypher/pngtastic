@@ -15,14 +15,12 @@ package com.googlecode.pngtastic.core;
  * @author rayvanderborght
  */
 public enum PngImageType {
-
 	GREYSCALE(0),
 	TRUECOLOR(2),
 	INDEXED_COLOR(3),
 	GREYSCALE_ALPHA(4),
 	TRUECOLOR_ALPHA(6);
 
-	/** */
 	private int colorType;
 
 	/** */

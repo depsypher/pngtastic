@@ -24,10 +24,9 @@ import com.googlecode.pngtastic.core.Logger;
  * @author rayvanderborght
  */
 public class PngtasticCompressionHandler implements PngCompressionHandler {
-	/** */
+
 	private final Logger log;
 
-	/** */
 	private static final List<Integer> compressionStrategies = Arrays.asList(
 			Deflater.DEFAULT_STRATEGY,
 			Deflater.FILTERED,
@@ -43,7 +42,6 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	 */
 	@Override
 	public byte[] inflate(ByteArrayOutputStream imageBytes) throws IOException {
-
 		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.toByteArray()));
 		ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream();
 
@@ -62,7 +60,6 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	 */
 	@Override
 	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
-
 		List<byte[]> results = (concurrent)
 				? this.deflateImageDataConcurrently(inflatedImageData, compressionLevel)
 				: this.deflateImageDataSerially(inflatedImageData, compressionLevel, Deflater.DEFAULT_STRATEGY);
@@ -85,7 +82,6 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	 * advantage of multiple core architectures.
 	 */
 	private List<byte[]> deflateImageDataConcurrently(final byte[] inflatedImageData, final Integer compressionLevel) {
-
 		final Collection<byte[]> results = new ConcurrentLinkedQueue<byte[]>();
 
 		final Collection<Callable<Object>> tasks = new ArrayList<Callable<Object>>();

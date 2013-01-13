@@ -16,21 +16,11 @@ public interface PngFilterHandler {
 
 	/**
 	 * Apply the given filter type to the scanlines provided.
-	 *
-	 * @param filterType
-	 * @param scanlines
-	 * @param sampleBitCount
 	 */
 	public void applyFiltering(PngFilterType filterType, List<byte[]> scanlines, int sampleBitCount);
 
 	/**
 	 * Apply adaptive filtering as described in the png spec.
-	 *
-	 * @param inflatedImageData
-	 * @param scanlines
-	 * @param filteredScanLines
-	 * @param sampleSize
-	 * @throws IOException
 	 */
 	public void applyAdaptiveFiltering(byte[] inflatedImageData, List<byte[]> scanlines, Map<PngFilterType, List<byte[]>> filteredScanLines, int sampleSize) throws IOException;
 

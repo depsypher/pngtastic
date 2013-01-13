@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Apply PNG compression and decompression.  Implies zlib format, aka LZ77.
+ * Apply PNG compression and decompression. Implies zlib format, aka LZ77.
  *
  * @author rayvanderborght
  */
