@@ -112,6 +112,7 @@ Pngtastic - PNG image optimizer
 		<pngtastic todir="build/images" compressionLevel="9" loglevel="info">
 			<fileset dir="images">
 				<include name="**/*.png" />
+				<exclude name="robohash/**/*" />
 			</fileset>
 		</pngtastic>
 	</target>
