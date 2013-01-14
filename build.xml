@@ -111,8 +111,7 @@ Pngtastic - PNG image optimizer
 		<taskdef classname="com.googlecode.pngtastic.ant.PngOptimizerTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
 		<pngtastic todir="build/images" compressionLevel="9" loglevel="info">
 			<fileset dir="images">
-				<include name="**/*.png" />
-				<exclude name="robohash/**/*" />
+				<include name="optimizer/**/*.png" />
 			</fileset>
 		</pngtastic>
 	</target>
