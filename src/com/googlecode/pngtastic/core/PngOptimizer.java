@@ -102,6 +102,11 @@ public class PngOptimizer {
 	}
 
 	/** */
+	public PngImage optimize(PngImage image) throws IOException {
+		return this.optimize(image, null);
+	}
+
+	/** */
 	public PngImage optimize(PngImage image, Integer compressionLevel) throws IOException {
 		// FIXME: support low bit depth interlaced images
 		if (image.getInterlace() == 1 && image.getSampleBitCount() < 8) {
