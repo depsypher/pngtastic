@@ -116,7 +116,6 @@ public class PngOptimizer {
 
 		// collect image data chunks
 		byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
-		log.debug("original size=%d", image.getImageData().length);
 
 		int scanlineLength = (int)(Math.ceil(image.getWidth() * image.getSampleBitCount() / 8F)) + 1;
 
@@ -153,13 +152,13 @@ public class PngOptimizer {
 		pngFilterHandler.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
 
 		byte[] adaptiveImageData = pngCompressionHandler.deflate(inflatedImageData, compressionLevel, true);
+		log.debug("Original=%d, Adaptive=%d, %s=%d", image.getImageData().length, adaptiveImageData.length,
+				bestFilterType, (deflatedImageData == null) ? 0 : deflatedImageData.length);
+
 		if (deflatedImageData == null || adaptiveImageData.length < deflatedImageData.length) {
 			deflatedImageData = adaptiveImageData;
 			bestFilterType = PngFilterType.ADAPTIVE;
-			log.debug("Adaptive=%d, Other=%d", adaptiveImageData.length, deflatedImageData.length);
 		}
-
-		log.debug("Best filter type: %s", bestFilterType);
 
 		PngChunk imageChunk = new PngChunk(PngChunk.IMAGE_DATA.getBytes(), deflatedImageData);
 		result.addChunk(imageChunk);
