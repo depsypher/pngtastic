@@ -47,7 +47,7 @@ public class PngtasticLayerer
 			baseImage.setFileName(file);
 			baseImage.export(file, outputBytes.toByteArray());
 
-			optimizer.optimize(baseImage, file, compressionLevel);
+			optimizer.optimize(baseImage, file, false, compressionLevel);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

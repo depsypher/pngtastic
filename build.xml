@@ -105,11 +105,11 @@ Pngtastic - PNG image optimizer
 	</target>
 
 	<!--
-	Run the pngtastic ant task on the included images
+	Run the pngtastic optimizer ant task on the included images
 	-->
-	<target name="runtask" depends="dist">
+	<target name="optimize" depends="dist">
 		<taskdef classname="com.googlecode.pngtastic.ant.PngOptimizerTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
-		<pngtastic todir="build/images" compressionLevel="9" loglevel="info">
+		<pngtastic todir="build/images" removeGamma="true" compressionLevel="9" loglevel="info">
 			<fileset dir="images">
 				<include name="optimizer/**/*.png" />
 			</fileset>

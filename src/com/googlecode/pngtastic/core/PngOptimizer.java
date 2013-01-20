@@ -55,11 +55,13 @@ public class PngOptimizer {
 	}
 
 	/** */
-	public void optimize(PngImage image, String outputFileName, Integer compressionLevel) throws FileNotFoundException, IOException {
+	public void optimize(PngImage image, String outputFileName, boolean removeGamma, Integer compressionLevel)
+			throws FileNotFoundException, IOException {
+
 		log.debug("=== OPTIMIZING ===");
 
 		long start = System.currentTimeMillis();
-		PngImage optimized = optimize(image, compressionLevel);
+		PngImage optimized = optimize(image, removeGamma, compressionLevel);
 
 		ByteArrayOutputStream optimizedBytes = new ByteArrayOutputStream();
 		DataOutputStream output = optimized.writeDataOutputStream(optimizedBytes);
@@ -103,11 +105,11 @@ public class PngOptimizer {
 
 	/** */
 	public PngImage optimize(PngImage image) throws IOException {
-		return this.optimize(image, null);
+		return this.optimize(image, false, null);
 	}
 
 	/** */
-	public PngImage optimize(PngImage image, Integer compressionLevel) throws IOException {
+	public PngImage optimize(PngImage image, boolean removeGamma, Integer compressionLevel) throws IOException {
 		// FIXME: support low bit depth interlaced images
 		if (image.getInterlace() == 1 && image.getSampleBitCount() < 8) {
 			return image;
@@ -117,7 +119,7 @@ public class PngOptimizer {
 		result.setInterlace((short) 0);
 
 		Iterator<PngChunk> itChunks = image.getChunks().iterator();
-		PngChunk chunk = processHeadChunks(result, itChunks);
+		PngChunk chunk = processHeadChunks(result, removeGamma, itChunks);
 
 		// collect image data chunks
 		byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
@@ -238,7 +240,7 @@ public class PngOptimizer {
 	}
 
 	/* */
-	private PngChunk processHeadChunks(PngImage result, Iterator<PngChunk> itChunks) throws IOException {
+	private PngChunk processHeadChunks(PngImage result, boolean removeGamma, Iterator<PngChunk> itChunks) throws IOException {
 		PngChunk chunk = null;
 		while (itChunks.hasNext()) {
 			chunk = itChunks.next();
@@ -247,6 +249,9 @@ public class PngOptimizer {
 			}
 
 			if (chunk.isRequired()) {
+				if (removeGamma && PngChunk.IMAGE_GAMA.equalsIgnoreCase(chunk.getTypeString())) {
+					continue;
+				}
 				ByteArrayOutputStream bytes = new ByteArrayOutputStream(chunk.getLength());
 				DataOutputStream data = new DataOutputStream(bytes);
 

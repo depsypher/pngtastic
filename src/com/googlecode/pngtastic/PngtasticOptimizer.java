@@ -24,21 +24,22 @@ public class PngtasticOptimizer {
 			+ "Options:\n"
 			+ "  --toDir            the directory where optimized files go (will be created if it doesn't exist)\n"
 			+ "  --fileSuffix       string appended to the optimized files (file.png can become file.png.optimized.png)\n"
+			+ "  --removeGamma      remove gamma correction info if found\n"
 			+ "  --compressionLevel the compression level; 0-9 allowed (default is to try them all by brute force)\n"
 			+ "  --logLevel         the level of logging output (none, debug, info, or error)\n";
 
 	/** */
-	public PngtasticOptimizer(String toDir, String[] fileNames, String fileSuffix, Integer compressionLevel, String logLevel) {
+	public PngtasticOptimizer(String toDir, String[] fileNames, String fileSuffix, Boolean removeGamma, Integer compressionLevel, String logLevel) {
 		long start = System.currentTimeMillis();
 
 		PngOptimizer optimizer = new PngOptimizer(logLevel);
 		for (String file : fileNames) {
 			try {
 				String outputPath = toDir + "/" + file;
-				this.makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
+				makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
 				PngImage image = new PngImage(file);
-				optimizer.optimize(image, outputPath + fileSuffix, compressionLevel);
+				optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -84,10 +85,11 @@ public class PngtasticOptimizer {
 
 		String toDir = (options.get("--toDir") == null) ? "." : options.get("--toDir");
 		String fileSuffix = (options.get("--fileSuffix") == null) ? "" : options.get("--fileSuffix");
+		Boolean removeGamma = Boolean.valueOf(options.get("--removeGamma"));
 		Integer compressionLevel = safeInteger(options.get("--compressionLevel"));
 		String logLevel = options.get("--logLevel");
 
-		new PngtasticOptimizer(toDir, files, fileSuffix, compressionLevel, logLevel);
+		new PngtasticOptimizer(toDir, files, fileSuffix, removeGamma, compressionLevel, logLevel);
 	}
 
 	/* */

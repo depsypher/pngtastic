@@ -31,6 +31,11 @@ public class PngOptimizerTask extends Task {
 	public String getFileSuffix() { return this.fileSuffix; }
 
 	/** */
+	private Boolean removeGamma = Boolean.FALSE;
+	public Boolean getRemoveGamma() { return removeGamma; }
+	public void setRemoveGamma(Boolean removeGamma) { this.removeGamma = removeGamma; }
+
+	/** */
 	private Integer compressionLevel;
 	public Integer getCompressionLevel() { return this.compressionLevel; }
 	public void setCompressionLevel(Integer compressionLevel) { this.compressionLevel = compressionLevel; }
@@ -63,20 +68,20 @@ public class PngOptimizerTask extends Task {
 		long start = System.currentTimeMillis();
 		PngOptimizer optimizer = new PngOptimizer(this.logLevel);
 
-		for (FileSet fileset : this.filesets) {
+		for (FileSet fileset : filesets) {
 			DirectoryScanner ds = fileset.getDirectoryScanner(this.getProject());
 			for (String src : ds.getIncludedFiles()) {
 				String inputPath = fileset.getDir() + "/" + src;
 				String outputPath = null;
 				try {
-					String outputDir = (this.toDir == null) ? fileset.getDir().getCanonicalPath() : this.toDir;
+					String outputDir = (toDir == null) ? fileset.getDir().getCanonicalPath() : toDir;
 					outputPath = outputDir + "/" + src;
 
 					// make the directory this file is in (for nested dirs in a **/* fileset)
 					this.makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
 					PngImage image = new PngImage(inputPath);
-					optimizer.optimize(image, outputPath + this.fileSuffix, this.compressionLevel);
+					optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);
 				} catch (Exception e) {
 					this.log(String.format("Problem optimizing %s. Caught %s", inputPath, e.getMessage()));
 				}
