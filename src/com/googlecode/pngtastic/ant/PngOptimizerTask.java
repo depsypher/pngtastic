@@ -14,7 +14,7 @@ import com.googlecode.pngtastic.core.PngImage;
 import com.googlecode.pngtastic.core.PngOptimizer;
 
 /**
- * Pngtastic ant task
+ * Pngtastic optimizer ant task
  *
  * @author rayvanderborght
  */
@@ -29,6 +29,11 @@ public class PngOptimizerTask extends Task {
 	private String fileSuffix = "";
 	public void setFileSuffix(String fileSuffix) { this.fileSuffix = fileSuffix; }
 	public String getFileSuffix() { return this.fileSuffix; }
+
+	/** */
+	private Boolean generateDataUriCss = Boolean.FALSE;
+	public Boolean getGenerateDataUriCss() { return generateDataUriCss; }
+	public void setGenerateDataUriCss(Boolean generateDataUriCss) { this.generateDataUriCss = generateDataUriCss; }
 
 	/** */
 	private Boolean removeGamma = Boolean.FALSE;
@@ -66,10 +71,11 @@ public class PngOptimizerTask extends Task {
 	/* */
 	private void convert() {
 		long start = System.currentTimeMillis();
-		PngOptimizer optimizer = new PngOptimizer(this.logLevel);
+		PngOptimizer optimizer = new PngOptimizer(logLevel);
+		optimizer.setGenerateDataUriCss(generateDataUriCss);
 
 		for (FileSet fileset : filesets) {
-			DirectoryScanner ds = fileset.getDirectoryScanner(this.getProject());
+			DirectoryScanner ds = fileset.getDirectoryScanner(getProject());
 			for (String src : ds.getIncludedFiles()) {
 				String inputPath = fileset.getDir() + "/" + src;
 				String outputPath = null;
@@ -78,17 +84,23 @@ public class PngOptimizerTask extends Task {
 					outputPath = outputDir + "/" + src;
 
 					// make the directory this file is in (for nested dirs in a **/* fileset)
-					this.makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
+					makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
 					PngImage image = new PngImage(inputPath);
 					optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);
 				} catch (Exception e) {
-					this.log(String.format("Problem optimizing %s. Caught %s", inputPath, e.getMessage()));
+					log(String.format("Problem optimizing %s. Caught %s", inputPath, e.getMessage()));
 				}
 			}
 		}
 
-		this.log(String.format("Processed %d files in %d milliseconds, saving %d bytes", optimizer.getStats().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
+		log(String.format("Processed %d files in %d milliseconds, saving %d bytes",
+				optimizer.getStats().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
+
+		try {
+			optimizer.generateDataUriCss(toDir);
+		} catch (IOException e) {
+		}
 	}
 
 	/* */

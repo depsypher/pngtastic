@@ -86,11 +86,11 @@ public class PngImage {
 			PngChunk chunk = null;
 
 			do {
-				length = this.getChunkLength(dis);
+				length = getChunkLength(dis);
 
-				byte[] type = this.getChunkType(dis);
-				byte[] data = this.getChunkData(dis, length);
-				long crc = this.getChunkCrc(dis);
+				byte[] type = getChunkType(dis);
+				byte[] data = getChunkData(dis, length);
+				long crc = getChunkCrc(dis);
 
 				chunk = new PngChunk(type, data);
 
@@ -98,7 +98,7 @@ public class PngImage {
 					throw new PngException("Corrupted file, crc check failed");
 				}
 
-				this.addChunk(chunk);
+				addChunk(chunk);
 			} while (length > 0 && !PngChunk.IMAGE_TRAILER.equals(chunk.getTypeString()));
 		} catch (IOException e) {
 			this.log.error("Error: %s", e.getMessage());
@@ -110,7 +110,7 @@ public class PngImage {
 	/** */
 	public File export(String fileName, byte[] bytes) throws FileNotFoundException, IOException {
 		File out = new File(fileName);
-		this.writeFileOutputStream(out, bytes);
+		writeFileOutputStream(out, bytes);
 
 		return out;
 	}
@@ -135,8 +135,8 @@ public class PngImage {
 		DataOutputStream outs = new DataOutputStream(output);
 		outs.writeLong(PngImage.SIGNATURE);
 
-		for (PngChunk chunk : this.getChunks()) {
-			this.log.debug("export: %s", chunk.toString());
+		for (PngChunk chunk : chunks) {
+			log.debug("export: %s", chunk.toString());
 			outs.writeInt(chunk.getLength());
 			outs.write(chunk.getType());
 			outs.write(chunk.getData());
@@ -166,7 +166,7 @@ public class PngImage {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 			// Write all the IDAT data
-			for (PngChunk chunk : this.getChunks()) {
+			for (PngChunk chunk : chunks) {
 				if (chunk.getTypeString().equals("IDAT")) {
 					out.write(chunk.getData());
 				}
@@ -180,7 +180,7 @@ public class PngImage {
 
 	/** */
 	public int getSampleBitCount() {
-		this.imageType = (this.imageType == null) ? PngImageType.forColorType(this.getColorType()) : this.imageType;
+		this.imageType = (this.imageType == null) ? PngImageType.forColorType(this.colorType) : this.imageType;
 		return this.imageType.channelCount() * this.bitDepth;
 	}
 
@@ -191,7 +191,7 @@ public class PngImage {
 
 	/* */
 	private byte[] getChunkType(InputStream ins) throws PngException {
-		return this.getChunkData(ins, 4);
+		return getChunkData(ins, 4);
 	}
 
 	/* */

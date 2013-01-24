@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.googlecode.pngtastic.core.processing.Base64;
 import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
@@ -37,6 +39,9 @@ public class PngOptimizer {
 	private PngFilterHandler pngFilterHandler;
 	private PngInterlaceHandler pngInterlaceHander;
 	private PngCompressionHandler pngCompressionHandler;
+
+	private boolean generateDataUriCss = false;
+	public void setGenerateDataUriCss(boolean generateDataUriCss) { this.generateDataUriCss = generateDataUriCss; }
 
 	private final List<Stats> stats = new ArrayList<Stats>();
 	public List<Stats> getStats() { return stats; }
@@ -64,32 +69,20 @@ public class PngOptimizer {
 		PngImage optimized = optimize(image, removeGamma, compressionLevel);
 
 		ByteArrayOutputStream optimizedBytes = new ByteArrayOutputStream();
-		DataOutputStream output = optimized.writeDataOutputStream(optimizedBytes);
+		long optimizedSize = optimized.writeDataOutputStream(optimizedBytes).size();
 
 		File originalFile = new File(image.getFileName());
 		long originalFileSize = originalFile.length();
 
-		File exported = null;
-		if (output.size() < originalFileSize) {
-			exported = optimized.export(outputFileName, optimizedBytes.toByteArray());
-		} else {
-			ByteBuffer buffer = ByteBuffer.allocate((int) originalFileSize);
-			FileInputStream ins = null;
-			try {
-				ins = new FileInputStream(originalFile);
-				ins.getChannel().read(buffer);
-			} finally {
-				if (ins != null) {
-					ins.close();
-				}
-			}
-			exported = new File(outputFileName);
-			optimized.writeFileOutputStream(exported, buffer.array());
-		}
+		byte[] optimalBytes = (optimizedSize < originalFileSize)
+				? optimizedBytes.toByteArray() : getFileBytes(originalFile, originalFileSize);
+
+		File exported = optimized.export(outputFileName, optimalBytes);
+
 		long optimizedFileSize = exported.length();
 		long time = System.currentTimeMillis() - start;
 
-		log.debug("Optimized in %d milliseconds, size %d", time, output.size());
+		log.debug("Optimized in %d milliseconds, size %d", time, optimizedSize);
 		log.debug("Original length in bytes: %d (%s)", originalFileSize, image.getFileName());
 		log.debug("Final length in bytes: %d (%s)", optimizedFileSize, outputFileName);
 
@@ -100,7 +93,9 @@ public class PngOptimizer {
 				fileSizeDifference / Float.valueOf(originalFileSize) * 100,
 				originalFileSize, optimizedFileSize, fileSizeDifference, outputFileName);
 
-		stats.add(new Stats(originalFileSize, optimizedFileSize));
+		String dataUri = (generateDataUriCss) ? Base64.encodeBytes(optimalBytes) : null;
+
+		stats.add(new Stats(image.getFileName(), originalFileSize, optimizedFileSize, image.getWidth(), image.getHeight(), dataUri));
 	}
 
 	/** */
@@ -412,9 +407,18 @@ public class PngOptimizer {
 		private long optimizedFileSize;
 		public long getOptimizedFileSize() { return optimizedFileSize; }
 
-		public Stats(long originalFileSize, long optimizedFileSize) {
+		private String fileName;
+		private long width;
+		private long height;
+		private String dataUri;
+
+		public Stats(String fileName, long originalFileSize, long optimizedFileSize, long width, long height, String dataUri) {
 			this.originalFileSize = originalFileSize;
 			this.optimizedFileSize = optimizedFileSize;
+			this.fileName = fileName;
+			this.width = width;
+			this.height = height;
+			this.dataUri = dataUri;
 		}
 	}
 
@@ -425,11 +429,59 @@ public class PngOptimizer {
 	 */
 	public long getTotalSavings() {
 		long totalSavings = 0;
-		for (PngOptimizer.Stats stat : getStats()) {
+		for (PngOptimizer.Stats stat : stats) {
 			totalSavings += (stat.getOriginalFileSize() - stat.getOptimizedFileSize());
 		}
 
 		return totalSavings;
+	}
+
+	/**
+	 * Get the css containing data uris of the images processed by the optimizer
+	 */
+	public void generateDataUriCss(String dir) throws IOException {
+		String path = (dir == null) ? "" : dir + "/";
+		PrintWriter out = new PrintWriter(path + "DataUriCss.html");
+
+		try {
+			out.append("<html>\n<head>\n\t<style>");
+
+			for (PngOptimizer.Stats stat : stats) {
+				String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
+				out.append('#').append(name).append(" {\n")
+						.append("\tbackground: url(\"data:image/png;base64,")
+						.append(stat.dataUri).append("\") no-repeat left top;\n")
+						.append("\twidth: ").append(String.valueOf(stat.width)).append("px;\n")
+						.append("\theight: ").append(String.valueOf(stat.height)).append("px;\n")
+						.append("}\n");
+			}
+			out.append("\t</style>\n</head>\n<body>\n");
+
+			for (PngOptimizer.Stats stat : stats) {
+				String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
+				out.append("\t<div id=\"").append(name).append("\"></div>\n");
+			}
+
+			out.append("</body>\n</html>");
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+		}
+	}
+
+	private byte[] getFileBytes(File originalFile, long originalFileSize) throws IOException {
+		ByteBuffer buffer = ByteBuffer.allocate((int) originalFileSize);
+		FileInputStream ins = null;
+		try {
+			ins = new FileInputStream(originalFile);
+			ins.getChannel().read(buffer);
+		} finally {
+			if (ins != null) {
+				ins.close();
+			}
+		}
+		return buffer.array();
 	}
 
 	/* */

@@ -116,4 +116,16 @@ Pngtastic - PNG image optimizer
 		</pngtastic>
 	</target>
 
+	<!--
+	Run the pngtastic optimizer ant task and create data uris on the included images
+	-->
+	<target name="generateDataUriCss" depends="dist">
+		<taskdef classname="com.googlecode.pngtastic.ant.PngOptimizerTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
+		<pngtastic todir="build/images" generateDataUriCss="true" removeGamma="true" compressionLevel="9" loglevel="info">
+			<fileset dir="images">
+				<include name="optimizer/pngsuite/**/*.png" />
+			</fileset>
+		</pngtastic>
+	</target>
+
 </project>
