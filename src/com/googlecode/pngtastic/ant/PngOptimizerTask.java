@@ -20,37 +20,34 @@ import com.googlecode.pngtastic.core.PngOptimizer;
  */
 public class PngOptimizerTask extends Task {
 
-	/** */
 	private String toDir;
 	public String getToDir() { return this.toDir; }
 	public void setToDir(String toDir) { this.toDir = toDir; }
 
-	/** */
 	private String fileSuffix = "";
 	public void setFileSuffix(String fileSuffix) { this.fileSuffix = fileSuffix; }
 	public String getFileSuffix() { return this.fileSuffix; }
 
-	/** */
 	private Boolean generateDataUriCss = Boolean.FALSE;
 	public Boolean getGenerateDataUriCss() { return generateDataUriCss; }
 	public void setGenerateDataUriCss(Boolean generateDataUriCss) { this.generateDataUriCss = generateDataUriCss; }
 
-	/** */
 	private Boolean removeGamma = Boolean.FALSE;
 	public Boolean getRemoveGamma() { return removeGamma; }
 	public void setRemoveGamma(Boolean removeGamma) { this.removeGamma = removeGamma; }
 
-	/** */
 	private Integer compressionLevel;
 	public Integer getCompressionLevel() { return this.compressionLevel; }
 	public void setCompressionLevel(Integer compressionLevel) { this.compressionLevel = compressionLevel; }
 
-	/** */
+	private String compressor;
+	public String getCompressor() { return compressor; }
+	public void setCompressor(String compressor) { this.compressor = compressor; }
+
 	private String logLevel;
 	public String getLogLevel() { return this.logLevel; }
 	public void setLogLevel(String logLevel) { this.logLevel = logLevel; }
 
-	/** */
 	private List<FileSet> filesets = new ArrayList<FileSet>();
 	public void addFileset(FileSet fileset) {
 		if (!this.filesets.contains(fileset)) {
@@ -58,7 +55,6 @@ public class PngOptimizerTask extends Task {
 		}
 	}
 
-	/** */
 	@Override
 	public void execute() throws BuildException {
 		try {
@@ -72,6 +68,7 @@ public class PngOptimizerTask extends Task {
 	private void convert() {
 		long start = System.currentTimeMillis();
 		PngOptimizer optimizer = new PngOptimizer(logLevel);
+		optimizer.setCompressor(compressor);
 		optimizer.setGenerateDataUriCss(generateDataUriCss);
 
 		for (FileSet fileset : filesets) {

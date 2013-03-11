@@ -26,6 +26,7 @@ import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
+import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
 
 /**
  * Optimizes PNG images for smallest possible filesize.
@@ -46,12 +47,10 @@ public class PngOptimizer {
 	private final List<Stats> stats = new ArrayList<Stats>();
 	public List<Stats> getStats() { return stats; }
 
-	/** */
 	public PngOptimizer() {
 		this(Logger.NONE);
 	}
 
-	/** */
 	public PngOptimizer(String logLevel) {
 		this.log = new Logger(logLevel);
 		this.pngFilterHandler = new PngtasticFilterHandler(log);
@@ -492,5 +491,11 @@ public class PngOptimizer {
 			result.append(String.format("%2x|", b));
 		}
 		log.debug(result.toString());
+	}
+
+	public void setCompressor(String compressor) {
+		if (compressor != null && compressor.contains("zopfli")) {
+			this.pngCompressionHandler = new ZopfliCompressionHandler(log, compressor);
+		}
 	}
 }

@@ -28,7 +28,7 @@ Pngtastic - PNG image optimizer
 	-->
 	<target name="compile" description="Compiles the code">
 		<mkdir dir="build/pngtastic/classes" />
-		<javac srcdir="src" destdir="build/pngtastic/classes" includeantruntime="false" debug="on" target="1.5">
+		<javac srcdir="src" destdir="build/pngtastic/classes" includeantruntime="false" debug="on" source="1.5" target="1.5">
 			<classpath refid="project.classpath" />
 		</javac>
 	</target>
@@ -110,6 +110,15 @@ Pngtastic - PNG image optimizer
 	<target name="optimize" depends="dist">
 		<taskdef classname="com.googlecode.pngtastic.ant.PngOptimizerTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
 		<pngtastic todir="build/images" removeGamma="true" compressionLevel="9" loglevel="info">
+			<fileset dir="images">
+				<include name="optimizer/**/*.png" />
+			</fileset>
+		</pngtastic>
+	</target>
+
+	<target name="optimize-zopfli" depends="dist">
+		<taskdef classname="com.googlecode.pngtastic.ant.PngOptimizerTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
+		<pngtastic todir="build/images" removeGamma="true" compressor="./lib/zopfli" loglevel="info">
 			<fileset dir="images">
 				<include name="optimizer/**/*.png" />
 			</fileset>

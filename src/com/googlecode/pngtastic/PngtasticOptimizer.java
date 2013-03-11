@@ -26,13 +26,18 @@ public class PngtasticOptimizer {
 			+ "  --fileSuffix       string appended to the optimized files (file.png can become file.png.optimized.png)\n"
 			+ "  --removeGamma      remove gamma correction info if found\n"
 			+ "  --compressionLevel the compression level; 0-9 allowed (default is to try them all by brute force)\n"
+			+ "  --compressor       path to an alternate compressor (e.g. zopfli)\n"
 			+ "  --logLevel         the level of logging output (none, debug, info, or error)\n";
 
 	/** */
-	public PngtasticOptimizer(String toDir, String[] fileNames, String fileSuffix, Boolean removeGamma, Integer compressionLevel, String logLevel) {
+	public PngtasticOptimizer(String toDir, String[] fileNames, String fileSuffix, Boolean removeGamma,
+			Integer compressionLevel, String compressor, String logLevel) {
+
 		long start = System.currentTimeMillis();
 
 		PngOptimizer optimizer = new PngOptimizer(logLevel);
+		optimizer.setCompressor(compressor);
+
 		for (String file : fileNames) {
 			try {
 				String outputPath = toDir + "/" + file;
@@ -88,8 +93,9 @@ public class PngtasticOptimizer {
 		Boolean removeGamma = Boolean.valueOf(options.get("--removeGamma"));
 		Integer compressionLevel = safeInteger(options.get("--compressionLevel"));
 		String logLevel = options.get("--logLevel");
+		String compressor = options.get("--compressor");
 
-		new PngtasticOptimizer(toDir, files, fileSuffix, removeGamma, compressionLevel, logLevel);
+		new PngtasticOptimizer(toDir, files, fileSuffix, removeGamma, compressionLevel, compressor, logLevel);
 	}
 
 	/* */
