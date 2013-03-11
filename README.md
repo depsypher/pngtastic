@@ -33,7 +33,7 @@ Here's a taste (ordered from worst to best compression):
     [ImageOptim] 59.8% :   169B ->    73B - build/images/optimizer/1px.png
     [ImageOptim]  11.2% : 35731B -> 31729B - build/images/optimizer/amigaball.png
     [ImageOptim]  8.7% :251938B ->230055B - build/images/optimizer/frymire.png
-    [ImageOptim] 28.5% : 93167B -> 66607B (20845B saved) - build/images/optimizer/gamma.png
+    [ImageOptim] 28.5% : 93167B -> 66607B - build/images/optimizer/gamma.png
 
     Pngtastic Zopfli Compression
     [pngtastic] 60.36% :   169B ->    67B (  102B saved) - build/images/optimizer/1px.png
