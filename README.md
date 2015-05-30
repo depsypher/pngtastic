@@ -43,5 +43,34 @@ Here's a taste (ordered from worst to best compression):
 
 Currently zopfli support in Pngtastic relies on native code. A java port of the algorithm would be ideal to keep Pngtastic's promise of being a pure Java image manipulation library. I may someday take a crack at this, but in the meantime I welcome contributions!
 
+Maven
+-----
+
+
+To use pngtastic from a Maven project, add:
+
+    <repositories>
+      <repository>
+        <id>openweb-maven-public</id>
+        <name>Openweb public Maven repository</name>
+        <url>https://maven.open-web.nl/content/groups/public/</url>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+      </repository>
+    </repositories>
+
+    <dependency>
+    	<groupId>com.googlecode.pngtastic</groupId>
+		<artifactId>pngtastic</artifactId>
+		<version>0.5</version>
+    </dependency>
+
+Download
+--------
+
+To download the binary JAR, see the 
+[Openweb maven repository](https://maven.open-web.nl/content/repositories/thirdparty/com/googlecode/pngtastic/pngtastic/0.5/pngtastic-0.5.jar).
+
 #### See More:
 Older, but still mostly up to date [documentation](https://code.google.com/p/pngtastic/wiki/UserGuide)
