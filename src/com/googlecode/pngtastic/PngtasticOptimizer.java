@@ -1,13 +1,13 @@
 package com.googlecode.pngtastic;
 
+import com.googlecode.pngtastic.core.PngImage;
+import com.googlecode.pngtastic.core.PngOptimizer;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.googlecode.pngtastic.core.PngImage;
-import com.googlecode.pngtastic.core.PngOptimizer;
 
 /**
  * Optimizes PNG images to reduce filesize
@@ -65,7 +65,7 @@ public class PngtasticOptimizer {
 
 	/** */
 	public static void main(String[] args) {
-		Map<String, String> options = new HashMap<String, String>();
+		Map<String, String> options = new HashMap<>();
 		int last = 0;
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];

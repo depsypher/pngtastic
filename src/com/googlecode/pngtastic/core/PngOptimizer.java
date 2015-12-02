@@ -1,12 +1,20 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.processing.Base64;
+import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
+import com.googlecode.pngtastic.core.processing.PngFilterHandler;
+import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
+import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
@@ -18,15 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.googlecode.pngtastic.core.processing.Base64;
-import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
-import com.googlecode.pngtastic.core.processing.PngFilterHandler;
-import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
-import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
-import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
-import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
-import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
 
 /**
  * Optimizes PNG images for smallest possible filesize.
@@ -60,7 +59,7 @@ public class PngOptimizer {
 
 	/** */
 	public void optimize(PngImage image, String outputFileName, boolean removeGamma, Integer compressionLevel)
-			throws FileNotFoundException, IOException {
+			throws IOException {
 
 		log.debug("=== OPTIMIZING ===");
 
@@ -128,7 +127,7 @@ public class PngOptimizer {
 //		this.getColors(image, originalScanlines);
 
 		// apply each type of filtering
-		Map<PngFilterType, List<byte[]>> filteredScanlines = new HashMap<PngFilterType, List<byte[]>>();
+		Map<PngFilterType, List<byte[]>> filteredScanlines = new HashMap<>();
 		for (PngFilterType filterType : PngFilterType.standardValues()) {
 			log.debug("Applying filter: %s", filterType);
 			List<byte[]> scanlines = copyScanlines(originalScanlines);
@@ -192,7 +191,7 @@ public class PngOptimizer {
 	private List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height) {
 		log.debug("Getting scanlines");
 
-		List<byte[]> rows = new ArrayList<byte[]>(Math.max((int) height, 0));
+		List<byte[]> rows = new ArrayList<>(Math.max((int) height, 0));
 		byte[] previousRow = new byte[rowLength];
 
 		for (int i = 0; i < height; i++) {
@@ -212,7 +211,7 @@ public class PngOptimizer {
 
 	/* */
 	private List<byte[]> copyScanlines(List<byte[]> original) {
-		List<byte[]> copy = new ArrayList<byte[]>(original.size());
+		List<byte[]> copy = new ArrayList<>(original.size());
 		for (byte[] scanline : original) {
 			copy.add(scanline.clone());
 		}
@@ -282,7 +281,7 @@ public class PngOptimizer {
 	/* */
 	@SuppressWarnings("unused")
 	private Set<PngPixel> getColors(PngImage original, List<byte[]> rows) throws IOException {
-		Set<PngPixel> colors = new HashSet<PngPixel>();
+		Set<PngPixel> colors = new HashSet<>();
 		PngImageType imageType = PngImageType.forColorType(original.getColorType());
 		int sampleSize = original.getSampleBitCount();
 

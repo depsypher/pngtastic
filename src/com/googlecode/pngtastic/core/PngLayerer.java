@@ -1,5 +1,13 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.PngOptimizer.Stats;
+import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
+import com.googlecode.pngtastic.core.processing.PngFilterHandler;
+import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
+import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -8,14 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.googlecode.pngtastic.core.PngOptimizer.Stats;
-import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
-import com.googlecode.pngtastic.core.processing.PngFilterHandler;
-import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
-import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
-import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
-import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
 /**
  * Layers PNG images on top of one another. Currently expects two images of the
@@ -32,7 +32,7 @@ public class PngLayerer {
 	private PngInterlaceHandler pngInterlaceHander;
 	private PngCompressionHandler pngCompressionHandler;
 
-	private final List<Stats> stats = new ArrayList<Stats>();
+	private final List<Stats> stats = new ArrayList<>();
 	public List<Stats> getStats() { return this.stats; }
 
 	/** */
@@ -167,7 +167,7 @@ public class PngLayerer {
 	private List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height) {
 		this.log.debug("Getting scanlines");
 
-		List<byte[]> rows = new ArrayList<byte[]>(Math.max((int)height, 0));
+		List<byte[]> rows = new ArrayList<>(Math.max((int)height, 0));
 		byte[] previousRow = new byte[rowLength];
 
 		for (int i = 0; i < height; i++) {
@@ -201,7 +201,7 @@ public class PngLayerer {
 
 	/* */
 	private List<byte[]> doLayering(PngImage baseImage, PngImage layerImage, List<byte[]> baseRows, List<byte[]> layerRows) throws IOException {
-		List<byte[]> result = new ArrayList<byte[]>(baseRows.size());
+		List<byte[]> result = new ArrayList<>(baseRows.size());
 
 		PngImageType baseImageType = PngImageType.forColorType(baseImage.getColorType());
 		PngImageType layerImageType = PngImageType.forColorType(layerImage.getColorType());

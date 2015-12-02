@@ -1,14 +1,14 @@
 package com.googlecode.pngtastic;
 
+import com.googlecode.pngtastic.core.PngImage;
+import com.googlecode.pngtastic.core.PngLayerer;
+import com.googlecode.pngtastic.core.PngOptimizer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.googlecode.pngtastic.core.PngImage;
-import com.googlecode.pngtastic.core.PngLayerer;
-import com.googlecode.pngtastic.core.PngOptimizer;
 
 /**
  * Layers PNG images on top of one another to produce a merged image. Assumes
@@ -58,7 +58,7 @@ public class PngtasticLayerer
 
 	/** */
 	public static void main(String[] args) {
-		Map<String, String> options = new HashMap<String, String>();
+		Map<String, String> options = new HashMap<>();
 		int last = 0;
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];

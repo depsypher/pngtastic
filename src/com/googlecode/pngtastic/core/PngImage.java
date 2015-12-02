@@ -31,7 +31,7 @@ public class PngImage {
 	public void setFileName(String fileName) { this.fileName = fileName; }
 
 	/** */
-	private List<PngChunk> chunks = new ArrayList<PngChunk>();
+	private List<PngChunk> chunks = new ArrayList<>();
 	public List<PngChunk> getChunks() { return this.chunks; }
 
 	/** */
@@ -108,7 +108,7 @@ public class PngImage {
 	}
 
 	/** */
-	public File export(String fileName, byte[] bytes) throws FileNotFoundException, IOException {
+	public File export(String fileName, byte[] bytes) throws IOException {
 		File out = new File(fileName);
 		writeFileOutputStream(out, bytes);
 
@@ -116,7 +116,7 @@ public class PngImage {
 	}
 
 	/** */
-	FileOutputStream writeFileOutputStream(File out, byte[] bytes) throws FileNotFoundException, IOException {
+	FileOutputStream writeFileOutputStream(File out, byte[] bytes) throws IOException {
 		FileOutputStream outs = null;
 		try {
 			outs = new FileOutputStream(out);
