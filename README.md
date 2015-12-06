@@ -42,6 +42,3 @@ Here's a taste (ordered from worst to best compression):
     [pngtastic] 29.30% : 93167B -> 65872B (27295B saved) - build/images/optimizer/gamma.png
 
 Currently zopfli support in Pngtastic relies on native code. A java port of the algorithm would be ideal to keep Pngtastic's promise of being a pure Java image manipulation library. I may someday take a crack at this, but in the meantime I welcome contributions!
-
-#### See More:
-Older, but still mostly up to date [documentation](https://code.google.com/p/pngtastic/wiki/UserGuide)
