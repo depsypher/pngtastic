@@ -25,37 +25,29 @@ public class PngImage {
 
 	public static final long SIGNATURE = 0x89504e470d0a1a0aL;
 
-	/** */
 	private String fileName;
 	public String getFileName() { return this.fileName; }
 	public void setFileName(String fileName) { this.fileName = fileName; }
 
-	/** */
 	private List<PngChunk> chunks = new ArrayList<>();
 	public List<PngChunk> getChunks() { return this.chunks; }
 
-	/** */
 	private long width;
 	public long getWidth() { return this.width; }
 
-	/** */
 	private long height;
 	public long getHeight() { return this.height; }
 
-	/** */
 	private short bitDepth;
 	public short getBitDepth() { return this.bitDepth; }
 
-	/** */
 	private short colorType;
 	public short getColorType() { return this.colorType; }
 
-	/** */
 	private short interlace;
 	public short getInterlace() { return this.interlace; }
 	public void setInterlace(short interlace) { this.interlace = interlace; }
 
-	/** */
 	private PngImageType imageType;
 
 	/** */
@@ -82,8 +74,8 @@ public class PngImage {
 			DataInputStream dis = new DataInputStream(ins);
 			readSignature(dis);
 
-			int length = 0;
-			PngChunk chunk = null;
+			int length;
+			PngChunk chunk;
 
 			do {
 				length = getChunkLength(dis);

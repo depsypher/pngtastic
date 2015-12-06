@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class PngtasticOptimizer {
 	/** */
-	private static final String HELP = "java -jar pngtastic-x.x.jar com.googlecode.pngtastic.PngtasticOptimizer [options] file1 [file2 ..]\n"
+	private static final String HELP = "java -cp pngtastic-x.x.jar com.googlecode.pngtastic.PngtasticOptimizer [options] file1 [file2 ..]\n"
 			+ "Options:\n"
 			+ "  --toDir            the directory where optimized files go (will be created if it doesn't exist)\n"
 			+ "  --fileSuffix       string appended to the optimized files (file.png can become file.png.optimized.png)\n"

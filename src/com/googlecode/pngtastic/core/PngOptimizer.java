@@ -9,9 +9,7 @@ import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,12 +18,10 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Optimizes PNG images for smallest possible filesize.
@@ -37,13 +33,13 @@ public class PngOptimizer {
 	private final Logger log;
 
 	private PngFilterHandler pngFilterHandler;
-	private PngInterlaceHandler pngInterlaceHander;
+	private PngInterlaceHandler pngInterlaceHandler;
 	private PngCompressionHandler pngCompressionHandler;
 
 	private boolean generateDataUriCss = false;
 	public void setGenerateDataUriCss(boolean generateDataUriCss) { this.generateDataUriCss = generateDataUriCss; }
 
-	private final List<Stats> stats = new ArrayList<Stats>();
+	private final List<Stats> stats = new ArrayList<>();
 	public List<Stats> getStats() { return stats; }
 
 	public PngOptimizer() {
@@ -53,7 +49,7 @@ public class PngOptimizer {
 	public PngOptimizer(String logLevel) {
 		this.log = new Logger(logLevel);
 		this.pngFilterHandler = new PngtasticFilterHandler(log);
-		this.pngInterlaceHander = new PngtasticInterlaceHandler(log, pngFilterHandler);
+		this.pngInterlaceHandler = new PngtasticInterlaceHandler(log, pngFilterHandler);
 		this.pngCompressionHandler = new PngtasticCompressionHandler(log);
 	}
 
@@ -120,11 +116,11 @@ public class PngOptimizer {
 		int scanlineLength = (int)(Math.ceil(image.getWidth() * image.getSampleBitCount() / 8F)) + 1;
 
 		List<byte[]> originalScanlines = (image.getInterlace() == 1)
-				? pngInterlaceHander.deInterlace((int) image.getWidth(), (int) image.getHeight(), image.getSampleBitCount(), inflatedImageData)
+				? pngInterlaceHandler.deInterlace((int) image.getWidth(), (int) image.getHeight(), image.getSampleBitCount(), inflatedImageData)
 				: getScanlines(inflatedImageData, image.getSampleBitCount(), scanlineLength, image.getHeight());
 
 		// TODO: use this for bit depth reduction
-//		this.getColors(image, originalScanlines);
+//		Map<PngPixel, Integer> colors = getColors(image, originalScanlines, 32);
 
 		// apply each type of filtering
 		Map<PngFilterType, List<byte[]>> filteredScanlines = new HashMap<>();
@@ -276,123 +272,6 @@ public class PngOptimizer {
 		imageData.close();
 
 		return pngCompressionHandler.inflate(imageBytes);
-	}
-
-	/* */
-	@SuppressWarnings("unused")
-	private Set<PngPixel> getColors(PngImage original, List<byte[]> rows) throws IOException {
-		Set<PngPixel> colors = new HashSet<>();
-		PngImageType imageType = PngImageType.forColorType(original.getColorType());
-		int sampleSize = original.getSampleBitCount();
-
-		for (byte[] row : rows) {
-			int sampleCount = ((row.length - 1) * 8) / sampleSize;
-			ByteArrayInputStream ins = new ByteArrayInputStream(row);
-			DataInputStream dis = new DataInputStream(ins);
-			dis.readUnsignedByte();	// the filter byte
-
-			for (int i = 0; i < sampleCount; i++) {
-				switch (imageType) {
-					case INDEXED_COLOR:
-						// TODO: read pixels from palette
-						break;
-
-					case GREYSCALE:
-					case GREYSCALE_ALPHA:
-						// TODO: who knows
-						break;
-
-					case TRUECOLOR:
-						if (original.getBitDepth() == 8) {
-							int red = dis.readUnsignedByte();
-							int green = dis.readUnsignedByte();
-							int blue = dis.readUnsignedByte();
-							colors.add(new PngPixel(red, green, blue));
-						} else {
-							int red = dis.readUnsignedShort();
-							int green = dis.readUnsignedShort();
-							int blue = dis.readUnsignedShort();
-							colors.add(new PngPixel(red, green, blue));
-						}
-						break;
-
-					case TRUECOLOR_ALPHA:
-						if (original.getBitDepth() == 8) {
-							int red = dis.readUnsignedByte();
-							int green = dis.readUnsignedByte();
-							int blue = dis.readUnsignedByte();
-							int alpha = dis.readUnsignedByte();
-							colors.add(new PngPixel(red, green, blue, alpha));
-						} else {
-							int red = dis.readUnsignedShort();
-							int green = dis.readUnsignedShort();
-							int blue = dis.readUnsignedShort();
-							int alpha = dis.readUnsignedShort();
-							colors.add(new PngPixel(red, green, blue, alpha));
-						}
-						break;
-
-					default:
-						throw new IllegalArgumentException();
-				}
-			}
-		}
-//		for (PngPixel c : colors)
-//			this.log.debug("r=%d g=%d b=%d a=%d", red, green, blue, alpha);
-
-		this.log.debug("color count=%d", colors.size());
-
-		return colors;
-	}
-
-	/** */
-	private static class PngPixel {
-		private final int red;
-		private final int green;
-		private final int blue;
-		private final int alpha;
-
-		/** */
-		public PngPixel(int red, int green, int blue) {
-			this(red, green, blue, -1);
-		}
-
-		/** */
-		public PngPixel(int red, int green, int blue, int alpha) {
-			this.red = red;
-			this.green = green;
-			this.blue = blue;
-			this.alpha = alpha;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + this.alpha;
-			result = prime * result + this.blue;
-			result = prime * result + this.green;
-			result = prime * result + this.red;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-
-			if (obj == null || this.getClass() != obj.getClass()) {
-				return false;
-			}
-
-			PngPixel other = (PngPixel) obj;
-			if (this.alpha != other.alpha || this.blue != other.blue || this.green != other.green || this.red != other.red) {
-				return false;
-			}
-
-			return true;
-		}
 	}
 
 	/**

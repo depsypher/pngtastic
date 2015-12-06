@@ -1,17 +1,16 @@
 package com.googlecode.pngtastic.ant;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.googlecode.pngtastic.core.PngImage;
+import com.googlecode.pngtastic.core.PngOptimizer;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
-import com.googlecode.pngtastic.core.PngImage;
-import com.googlecode.pngtastic.core.PngOptimizer;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Pngtastic optimizer ant task
@@ -48,7 +47,7 @@ public class PngOptimizerTask extends Task {
 	public String getLogLevel() { return this.logLevel; }
 	public void setLogLevel(String logLevel) { this.logLevel = logLevel; }
 
-	private List<FileSet> filesets = new ArrayList<FileSet>();
+	private List<FileSet> filesets = new ArrayList<>();
 	public void addFileset(FileSet fileset) {
 		if (!this.filesets.contains(fileset)) {
 			this.filesets.add(fileset);
@@ -75,7 +74,7 @@ public class PngOptimizerTask extends Task {
 			DirectoryScanner ds = fileset.getDirectoryScanner(getProject());
 			for (String src : ds.getIncludedFiles()) {
 				String inputPath = fileset.getDir() + "/" + src;
-				String outputPath = null;
+				String outputPath;
 				try {
 					String outputDir = (toDir == null) ? fileset.getDir().getCanonicalPath() : toDir;
 					outputPath = outputDir + "/" + src;
