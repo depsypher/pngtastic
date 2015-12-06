@@ -31,7 +31,7 @@ Pngtastic - PNG image optimizer
 	-->
 	<target name="compile" description="Compiles the code">
 		<mkdir dir="build/pngtastic/classes" />
-		<javac srcdir="src" destdir="build/pngtastic/classes" includeantruntime="false" debug="on" source="1.7" target="1.7">
+		<javac srcdir="src/main/java" destdir="build/pngtastic/classes" includeantruntime="false" debug="on" source="1.7" target="1.7">
 			<classpath refid="project.classpath" />
 		</javac>
 	</target>
@@ -54,7 +54,7 @@ Pngtastic - PNG image optimizer
 	-->
 	<target name="javadoc">
 		<mkdir dir="build/javadoc/api" />
-		<javadoc sourcepath="src" destdir="build/javadoc/api" packagenames="*">
+		<javadoc sourcepath="src/main/java" destdir="build/javadoc/api" packagenames="*">
 			<classpath refid="javadoc.classpath" />
 		</javadoc>
 	</target>
