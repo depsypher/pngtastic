@@ -1,5 +1,7 @@
 package com.googlecode.pngtastic.core.processing;
 
+import com.googlecode.pngtastic.core.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,8 +17,6 @@ import java.util.concurrent.Executors;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
-
-import com.googlecode.pngtastic.core.Logger;
 
 /**
  * Implements PNG compression and decompression
@@ -82,9 +82,9 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	 * advantage of multiple core architectures.
 	 */
 	private List<byte[]> deflateImageDataConcurrently(final byte[] inflatedImageData, final Integer compressionLevel) {
-		final Collection<byte[]> results = new ConcurrentLinkedQueue<byte[]>();
+		final Collection<byte[]> results = new ConcurrentLinkedQueue<>();
 
-		final Collection<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+		final Collection<Callable<Object>> tasks = new ArrayList<>();
 		for (final int strategy : compressionStrategies) {
 			tasks.add(Executors.callable(new Runnable() {
 				@Override
@@ -106,12 +106,12 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 			compressionThreadPool.shutdown();
 		}
 
-		return new ArrayList<byte[]>(results);
+		return new ArrayList<>(results);
 	}
 
 	/* */
 	private List<byte[]> deflateImageDataSerially(byte[] inflatedImageData, Integer compressionLevel, Integer compressionStrategy) {
-		List<byte[]> results = new ArrayList<byte[]>();
+		List<byte[]> results = new ArrayList<>();
 
 		List<Integer> strategies = (compressionStrategy == null) ? compressionStrategies
 				: Collections.singletonList(compressionStrategy);

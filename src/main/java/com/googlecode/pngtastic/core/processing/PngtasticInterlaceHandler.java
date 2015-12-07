@@ -1,10 +1,10 @@
 package com.googlecode.pngtastic.core.processing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.googlecode.pngtastic.core.Logger;
 import com.googlecode.pngtastic.core.PngException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implement PNG interlacing and deinterlacing
@@ -54,7 +54,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler {
 	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData) {
 		this.log.debug("Deinterlacing");
 
-		List<byte[]> results = new ArrayList<byte[]>();
+		List<byte[]> results = new ArrayList<>();
 		int sampleSize = Math.max(1, sampleBitCount / 8);
 		byte[][] rows = new byte[height][Double.valueOf(Math.ceil(width * sampleBitCount / 8D)).intValue() + 1];
 

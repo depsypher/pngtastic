@@ -1,7 +1,10 @@
 package com.googlecode.pngtastic.core;
 
-/** */
-class PngPixel {
+/**
+ * An individual pixel in an image
+ */
+public class PngPixel {
+
 	private final int red;
 	private final int green;
 	private final int blue;
@@ -9,6 +12,7 @@ class PngPixel {
 
 	private final int x;
 	private final int y;
+
 	private int freq = 0;
 	private boolean duplicate;
 

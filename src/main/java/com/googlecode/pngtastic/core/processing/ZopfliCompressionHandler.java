@@ -1,5 +1,7 @@
 package com.googlecode.pngtastic.core.processing;
 
+import com.googlecode.pngtastic.core.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -9,8 +11,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.InflaterInputStream;
-
-import com.googlecode.pngtastic.core.Logger;
 
 /**
  * Implements PNG compression and decompression
@@ -67,7 +67,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 
 	/* */
 	private List<byte[]> deflateImageDataSerially(byte[] inflatedImageData, Integer compressionLevel) {
-		List<byte[]> results = new ArrayList<byte[]>();
+		List<byte[]> results = new ArrayList<>();
 
 		try {
 			results.add(deflateImageData(inflatedImageData, compressionLevel));
