@@ -228,5 +228,21 @@ public class PngColorCounter extends PngProcessor {
 					+ "\nColors: " + dominantColors.toString()
 					+ "\n";
 		}
+
+		public String getFileName() {
+			return fileName;
+		}
+		public long getWidth() {
+			return width;
+		}
+		public long getHeight() {
+			return height;
+		}
+		public int getTotalColors() {
+			return totalColors;
+		}
+		public List<PngPixel> getDominantColors() {
+			return dominantColors;
+		}
 	}
 }
