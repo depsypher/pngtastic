@@ -72,7 +72,7 @@ public class PngColorCounter extends PngProcessor {
 		final List<PngPixel> colors = getColors(image, originalScanlines);
 		final List<PngPixel> results = getMergedColors(image, colors);
 
-		stats = new Stats(image.getFileName(), width, height, colors.size(), results.size(), results.toString());
+		stats = new Stats(image.getFileName(), width, height, colors.size(), results);
 	}
 
 	private List<PngPixel> getColors(PngImage original, List<byte[]> rows) throws IOException {
@@ -210,24 +210,22 @@ public class PngColorCounter extends PngProcessor {
 		private final long width;
 		private final long height;
 		private final int totalColors;
-		private final int dominantColors;
-		private final String colors;
+		private final List<PngPixel> dominantColors;
 
-		public Stats(String fileName, long width, long height, int totalColors, int dominantColors, String colors) {
+		public Stats(String fileName, long width, long height, int totalColors, List<PngPixel> dominantColors) {
 			this.fileName = fileName;
 			this.width = width;
 			this.height = height;
 			this.totalColors = totalColors;
 			this.dominantColors = dominantColors;
-			this.colors = colors;
 		}
 
 		@Override
 		public String toString() {
 			return "Filename: " + fileName + " " + width + "x" + height
 					+ "\nCandidates: " + totalColors
-					+ "\nDominant Colors: " + dominantColors
-					+ "\nColors: " + colors
+					+ "\nDominant Colors: " + dominantColors.size()
+					+ "\nColors: " + dominantColors.toString()
 					+ "\n";
 		}
 	}
