@@ -16,8 +16,8 @@ import java.util.Map;
  *
  * @author rayvanderborght
  */
-public class PngtasticLayerer
-{
+public class PngtasticLayerer {
+
 	/** */
 	private static final String HELP = "java -cp pngtastic-x.x.jar com.googlecode.pngtastic.PngtasticLayerer [options] file1 [file2 ..]\n"
 			+ "Options:\n"
@@ -28,22 +28,23 @@ public class PngtasticLayerer
 
 	/** */
 	public PngtasticLayerer(String toDir, String[] fileNames, String outFile, Integer compressionLevel, String logLevel) {
-		long start = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 
-		PngLayerer layerer = new PngLayerer(logLevel);
-		PngOptimizer optimizer = new PngOptimizer(logLevel);
+		final PngLayerer layerer = new PngLayerer(logLevel);
+		final PngOptimizer optimizer = new PngOptimizer(logLevel);
+
 		try {
 			PngImage baseImage = new PngImage(fileNames[0]);
 			for (int i = 1; i < fileNames.length; i++) {
-				String file = fileNames[i];
+				final String file = fileNames[i];
 
-				PngImage image = new PngImage(file);
+				final PngImage image = new PngImage(file);
 				baseImage = layerer.layer(baseImage, image, compressionLevel, false);
 			}
-			ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
+			final ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
 			baseImage.writeDataOutputStream(outputBytes);
 
-			String file = toDir + "/" + outFile;
+			final String file = toDir + "/" + outFile;
 			baseImage.setFileName(file);
 			baseImage.export(file, outputBytes.toByteArray());
 
@@ -58,7 +59,7 @@ public class PngtasticLayerer
 
 	/** */
 	public static void main(String[] args) {
-		Map<String, String> options = new HashMap<>();
+		final Map<String, String> options = new HashMap<>();
 		int last = 0;
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
@@ -73,7 +74,7 @@ public class PngtasticLayerer
 				}
 			}
 		}
-		String[] files = Arrays.copyOfRange(args, last, args.length);
+		final String[] files = Arrays.copyOfRange(args, last, args.length);
 
 		if (files.length == 0) {
 			System.out.println("No files to process");
@@ -81,10 +82,10 @@ public class PngtasticLayerer
 			return;
 		}
 
-		String toDir = (options.get("--toDir") == null) ? "." : options.get("--toDir");
-		String outFile = (options.get("--outFile") == null) ? "" : options.get("--outFile");
-		Integer compressionLevel = safeInteger(options.get("--compressionLevel"));
-		String logLevel = options.get("--logLevel");
+		final String toDir = (options.get("--toDir") == null) ? "." : options.get("--toDir");
+		final String outFile = (options.get("--outFile") == null) ? "" : options.get("--outFile");
+		final Integer compressionLevel = safeInteger(options.get("--compressionLevel"));
+		final String logLevel = options.get("--logLevel");
 
 		new PngtasticLayerer(toDir, files, outFile, compressionLevel, logLevel);
 	}

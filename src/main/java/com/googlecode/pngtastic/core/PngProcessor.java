@@ -36,8 +36,8 @@ public abstract class PngProcessor {
 	}
 
 	protected byte[] getInflatedImageData(PngChunk chunk, Iterator<PngChunk> itChunks) throws IOException {
-		ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
-		DataOutputStream imageData = new DataOutputStream(imageBytes);
+		final ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
+		final DataOutputStream imageData = new DataOutputStream(imageBytes);
 		while (chunk != null) {
 			if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString())) {
 				imageData.write(chunk.getData());
@@ -52,12 +52,12 @@ public abstract class PngProcessor {
 	}
 
 	protected List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height) {
-		List<byte[]> rows = new ArrayList<>(Math.max((int) height, 0));
+		final List<byte[]> rows = new ArrayList<>(Math.max((int) height, 0));
 		byte[] previousRow = new byte[rowLength];
 
 		for (int i = 0; i < height; i++) {
-			int offset = i * rowLength;
-			byte[] row = new byte[rowLength];
+			final int offset = i * rowLength;
+			final byte[] row = new byte[rowLength];
 			System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
 			try {
 				pngFilterHandler.deFilter(row, previousRow, sampleBitCount);

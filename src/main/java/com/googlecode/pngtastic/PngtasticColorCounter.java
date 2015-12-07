@@ -68,8 +68,8 @@ public class PngtasticColorCounter {
 			return;
 		}
 
-		Double distThreshold = safeDouble(options.get("--distThreshold"), 0.03D);
-		Double freqThreshold = safeDouble(options.get("--freqThreshold"), 0.001D);
+		Double distThreshold = safeDouble(options.get("--distThreshold"), 0.005D);  // min @8bit: 0.000005
+		Double freqThreshold = safeDouble(options.get("--freqThreshold"), 0.0005D);
 		Integer minAlpha = safeInteger(options.get("--minAlpha"), 30);
 		String logLevel = options.get("--logLevel");
 
