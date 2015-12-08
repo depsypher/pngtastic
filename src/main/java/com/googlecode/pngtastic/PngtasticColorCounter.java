@@ -35,7 +35,7 @@ public class PngtasticColorCounter {
 				PngImage image = new PngImage(file);
 				counter.count(image);
 
-				System.out.println(counter.getStats());
+				System.out.println(counter.getResult());
 
 			} catch (PngException | IOException e) {
 				e.printStackTrace();

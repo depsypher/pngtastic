@@ -26,8 +26,8 @@ public class PngColorCounter extends PngProcessor {
 	private final double freqThreshold;
 	private final int minAlpha;
 
-	private Stats stats;
-	public Stats getStats() { return stats; }
+	private ColorCounterResult colorCounterResult;
+	public ColorCounterResult getResult() { return colorCounterResult; }
 
 	public PngColorCounter() {
 		this(Logger.NONE, 0.01D, 0.01D, 30);
@@ -76,7 +76,7 @@ public class PngColorCounter extends PngProcessor {
 		final List<PngPixel> colors = getColors(image, originalScanlines);
 		final List<PngPixel> results = getMergedColors(image, colors);
 
-		stats = new Stats(image.getFileName(), width, height, colors.size(), results);
+		colorCounterResult = new ColorCounterResult(image.getFileName(), width, height, colors.size(), results);
 	}
 
 	private List<PngPixel> getColors(PngImage original, List<byte[]> rows) throws IOException {
@@ -208,14 +208,14 @@ public class PngColorCounter extends PngProcessor {
 	/**
 	 * Holds image processing info
 	 */
-	public static class Stats {
+	public static class ColorCounterResult {
 		private final String fileName;
 		private final long width;
 		private final long height;
 		private final int totalColors;
 		private final List<PngPixel> dominantColors;
 
-		public Stats(String fileName, long width, long height, int totalColors, List<PngPixel> dominantColors) {
+		public ColorCounterResult(String fileName, long width, long height, int totalColors, List<PngPixel> dominantColors) {
 			this.fileName = fileName;
 			this.width = width;
 			this.height = height;

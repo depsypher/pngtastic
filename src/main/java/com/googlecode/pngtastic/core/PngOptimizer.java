@@ -26,8 +26,8 @@ public class PngOptimizer extends PngProcessor {
 	private boolean generateDataUriCss = false;
 	public void setGenerateDataUriCss(boolean generateDataUriCss) { this.generateDataUriCss = generateDataUriCss; }
 
-	private final List<Stats> stats = new ArrayList<>();
-	public List<Stats> getStats() { return stats; }
+	private final List<OptimizerResult> results = new ArrayList<>();
+	public List<OptimizerResult> getResults() { return results; }
 
 	public PngOptimizer() {
 		this(Logger.NONE);
@@ -73,7 +73,7 @@ public class PngOptimizer extends PngProcessor {
 
 		final String dataUri = (generateDataUriCss) ? pngCompressionHandler.encodeBytes(optimalBytes) : null;
 
-		stats.add(new Stats(image.getFileName(), originalFileSize, optimizedFileSize, image.getWidth(), image.getHeight(), dataUri));
+		results.add(new OptimizerResult(image.getFileName(), originalFileSize, optimizedFileSize, image.getWidth(), image.getHeight(), dataUri));
 	}
 
 	/** */
@@ -193,7 +193,7 @@ public class PngOptimizer extends PngProcessor {
 	/**
 	 * Holds info about an image file optimization
 	 */
-	public static class Stats {
+	public static class OptimizerResult {
 		private long originalFileSize;
 		public long getOriginalFileSize() { return originalFileSize; }
 
@@ -205,7 +205,7 @@ public class PngOptimizer extends PngProcessor {
 		private long height;
 		private String dataUri;
 
-		public Stats(String fileName, long originalFileSize, long optimizedFileSize, long width, long height, String dataUri) {
+		public OptimizerResult(String fileName, long originalFileSize, long optimizedFileSize, long width, long height, String dataUri) {
 			this.originalFileSize = originalFileSize;
 			this.optimizedFileSize = optimizedFileSize;
 			this.fileName = fileName;
@@ -222,8 +222,8 @@ public class PngOptimizer extends PngProcessor {
 	 */
 	public long getTotalSavings() {
 		long totalSavings = 0;
-		for (PngOptimizer.Stats stat : stats) {
-			totalSavings += (stat.getOriginalFileSize() - stat.getOptimizedFileSize());
+		for (OptimizerResult result : results) {
+			totalSavings += (result.getOriginalFileSize() - result.getOptimizedFileSize());
 		}
 
 		return totalSavings;
@@ -239,19 +239,19 @@ public class PngOptimizer extends PngProcessor {
 		try {
 			out.append("<html>\n<head>\n\t<style>");
 
-			for (PngOptimizer.Stats stat : stats) {
-				final String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
+			for (OptimizerResult result : results) {
+				final String name = result.fileName.replaceAll("[^A-Za-z0-9]", "_");
 				out.append('#').append(name).append(" {\n")
 						.append("\tbackground: url(\"data:image/png;base64,")
-						.append(stat.dataUri).append("\") no-repeat left top;\n")
-						.append("\twidth: ").append(String.valueOf(stat.width)).append("px;\n")
-						.append("\theight: ").append(String.valueOf(stat.height)).append("px;\n")
+						.append(result.dataUri).append("\") no-repeat left top;\n")
+						.append("\twidth: ").append(String.valueOf(result.width)).append("px;\n")
+						.append("\theight: ").append(String.valueOf(result.height)).append("px;\n")
 						.append("}\n");
 			}
 			out.append("\t</style>\n</head>\n<body>\n");
 
-			for (PngOptimizer.Stats stat : stats) {
-				final String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
+			for (OptimizerResult result : results) {
+				final String name = result.fileName.replaceAll("[^A-Za-z0-9]", "_");
 				out.append("\t<div id=\"").append(name).append("\"></div>\n");
 			}
 

@@ -55,7 +55,7 @@ public class PngtasticLayerer {
 		}
 
 		System.out.println(String.format("Processed %d files in %d milliseconds, saving %d bytes",
-				optimizer.getStats().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
+				optimizer.getResults().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
 	}
 
 	/** */

@@ -50,7 +50,7 @@ public class PngtasticOptimizer {
 				e.printStackTrace();
 			}
 		}
-		System.out.println(String.format("Processed %d files in %d milliseconds, saving %d bytes", optimizer.getStats().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
+		System.out.println(String.format("Processed %d files in %d milliseconds, saving %d bytes", optimizer.getResults().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
 	}
 
 	/* */

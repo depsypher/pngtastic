@@ -91,7 +91,7 @@ public class PngOptimizerTask extends Task {
 		}
 
 		log(String.format("Processed %d files in %d milliseconds, saving %d bytes",
-				optimizer.getStats().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
+				optimizer.getResults().size(), System.currentTimeMillis() - start, optimizer.getTotalSavings()));
 
 		if (generateDataUriCss) {
 			try {

@@ -1,7 +1,5 @@
 package com.googlecode.pngtastic.core;
 
-import com.googlecode.pngtastic.core.PngOptimizer.Stats;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -18,9 +16,6 @@ import java.util.List;
  * @author rayvanderborght
  */
 public class PngLayerer extends PngProcessor {
-
-	private final List<Stats> stats = new ArrayList<>();
-	public List<Stats> getStats() { return this.stats; }
 
 	/** */
 	public PngLayerer() {
