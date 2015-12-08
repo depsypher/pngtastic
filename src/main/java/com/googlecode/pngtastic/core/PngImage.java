@@ -92,8 +92,9 @@ public class PngImage {
 
 				addChunk(chunk);
 			} while (length > 0 && !PngChunk.IMAGE_TRAILER.equals(chunk.getTypeString()));
+
 		} catch (IOException e) {
-			this.log.error("Error: %s", e.getMessage());
+			throw new PngException("Error: " + e.getMessage(), e);
 		}
 	}
 
@@ -192,7 +193,7 @@ public class PngImage {
 			if (actual < length) {
 				throw new PngException(String.format("Expected %d bytes but got %d", length, actual));
 			}
-		} catch(IOException e) {
+		} catch (IOException e) {
 			throw new PngException("Error reading chunk data", e);
 		}
 
