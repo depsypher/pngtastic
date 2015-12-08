@@ -38,6 +38,10 @@ public class PngColorCounter extends PngProcessor {
 		this(Logger.NONE, distThreshold, freqThreshold, minAlpha, 0L);
 	}
 
+	public PngColorCounter(double distThreshold, double freqThreshold, int minAlpha, long timeout) {
+		this(Logger.NONE, distThreshold, freqThreshold, minAlpha, timeout);
+	}
+
 	public PngColorCounter(String logLevel, double distThreshold, double freqThreshold, int minAlpha, long timeout) {
 		super(logLevel);
 
