@@ -103,14 +103,23 @@ public class PngColorCounter extends PngProcessor {
 
 			for (int x = 0; x < sampleCount; x++) {
 				switch (imageType) {
-					case INDEXED_COLOR:
-						// TODO: read pixels from palette
+					case INDEXED_COLOR: {
+						// TODO: consider transparency
+						final int offset = dis.readUnsignedByte() * 3;
+						final int r = original.getPalette().getUnsignedByte(offset);
+						final int g = original.getPalette().getUnsignedByte(offset + 1);
+						final int b = original.getPalette().getUnsignedByte(offset + 2);
+
+						final PngPixel pixel = new PngPixel(x, y, r, g, b, true);
+						final Integer count = colors.get(pixel);
+						colors.put(pixel, (count == null) ? 1 : count + 1);
 						break;
+					}
 
 					case GREYSCALE:
 					case GREYSCALE_ALPHA:
 						// TODO: who knows
-						break;
+						throw new PngException("Greyscale images not supported");
 
 					case TRUECOLOR: {
 						final PngPixel pixel;
@@ -125,10 +134,8 @@ public class PngColorCounter extends PngProcessor {
 							final int b = dis.readUnsignedShort();
 							pixel = new PngPixel(x, y, r, g, b, false);
 						}
-						if (pixel.getAlpha() > minAlpha) {
-							final Integer count = colors.get(pixel);
-							colors.put(pixel, (count == null) ? 1 : count + 1);
-						}
+						final Integer count = colors.get(pixel);
+						colors.put(pixel, (count == null) ? 1 : count + 1);
 						break;
 					}
 

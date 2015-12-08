@@ -48,6 +48,9 @@ public class PngImage {
 	public short getInterlace() { return this.interlace; }
 	public void setInterlace(short interlace) { this.interlace = interlace; }
 
+	private PngChunk palette;
+	public PngChunk getPalette() { return palette; }
+
 	private PngImageType imageType;
 
 	/** */
@@ -141,13 +144,20 @@ public class PngImage {
 
 	/** */
 	public void addChunk(PngChunk chunk) {
-		if (PngChunk.IMAGE_HEADER.equals(chunk.getTypeString())) {
-			this.width = chunk.getWidth();
-			this.height = chunk.getHeight();
-			this.bitDepth = chunk.getBitDepth();
-			this.colorType = chunk.getColorType();
-			this.interlace = chunk.getInterlace();
+		switch (chunk.getTypeString()) {
+			case PngChunk.IMAGE_HEADER:
+				this.width = chunk.getWidth();
+				this.height = chunk.getHeight();
+				this.bitDepth = chunk.getBitDepth();
+				this.colorType = chunk.getColorType();
+				this.interlace = chunk.getInterlace();
+				break;
+
+			case PngChunk.PALETTE:
+				this.palette = chunk;
+				break;
 		}
+
 		this.chunks.add(chunk);
 	}
 
