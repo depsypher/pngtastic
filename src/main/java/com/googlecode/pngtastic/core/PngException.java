@@ -5,8 +5,10 @@ package com.googlecode.pngtastic.core;
  *
  * @author rayvanderborght
  */
-@SuppressWarnings("serial")
-public class PngException extends Exception {
+public class PngException extends RuntimeException {
+
+	private static final long serialVersionUID = 1L;
+
 	/** */
 	public PngException() {  }
 

@@ -52,37 +52,37 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler {
 	 */
 	@Override
 	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData) {
-		this.log.debug("Deinterlacing");
+		log.debug("Deinterlacing");
 
-		List<byte[]> results = new ArrayList<>();
-		int sampleSize = Math.max(1, sampleBitCount / 8);
-		byte[][] rows = new byte[height][Double.valueOf(Math.ceil(width * sampleBitCount / 8D)).intValue() + 1];
+		final List<byte[]> results = new ArrayList<>();
+		final int sampleSize = Math.max(1, sampleBitCount / 8);
+		final byte[][] rows = new byte[height][Double.valueOf(Math.ceil(width * sampleBitCount / 8D)).intValue() + 1];
 
 		int subImageOffset = 0;
 		for (int pass = 0; pass < 7; pass++) {
-			int subImageRows = height / interlaceRowFrequency[pass];
-			int subImageColumns = width / interlaceColumnFrequency[pass];
-			int rowLength = Double.valueOf(Math.ceil(subImageColumns * sampleBitCount / 8D)).intValue() + 1;
+			final int subImageRows = height / interlaceRowFrequency[pass];
+			final int subImageColumns = width / interlaceColumnFrequency[pass];
+			final int rowLength = Double.valueOf(Math.ceil(subImageColumns * sampleBitCount / 8D)).intValue() + 1;
 
 			byte[] previousRow = new byte[rowLength];
 			int offset = 0;
 			for (int i = 0; i < subImageRows; i++) {
 				offset = subImageOffset + i * rowLength;
-				byte[] row = new byte[rowLength];
+				final byte[] row = new byte[rowLength];
 				System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
 				try {
-					this.pngFilterHandler.deFilter(row, previousRow, sampleBitCount);
+					pngFilterHandler.deFilter(row, previousRow, sampleBitCount);
 				} catch (PngException e) {
-					this.log.error("Error: %s", e.getMessage());
+					log.error("Error: %s", e.getMessage());
 				}
 
-				int samples = (row.length - 1) / sampleSize;
+				final int samples = (row.length - 1) / sampleSize;
 				for (int sample = 0; sample < samples; sample++) {
 					for (int b = 0; b < sampleSize; b++) {
-						int cf = interlaceColumnFrequency[pass] * sampleSize;
-						int co = interlaceColumnOffset[pass] * sampleSize;
-						int rf = interlaceRowFrequency[pass];
-						int ro = interlaceRowOffset[pass];
+						final int cf = interlaceColumnFrequency[pass] * sampleSize;
+						final int co = interlaceColumnOffset[pass] * sampleSize;
+						final int rf = interlaceRowFrequency[pass];
+						final int ro = interlaceRowOffset[pass];
 						rows[i * rf + ro][sample * cf + co + b + 1] = row[(sample * sampleSize) + b + 1];
 					}
 				}

@@ -2,7 +2,6 @@ package com.googlecode.pngtastic.core.processing;
 
 import com.googlecode.pngtastic.core.Logger;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.InflaterInputStream;
 
 /**
  * Implements PNG compression and decompression
@@ -32,26 +30,8 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] inflate(ByteArrayOutputStream imageBytes) throws IOException {
-		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.toByteArray()));
-		ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream();
-
-		int readLength;
-		byte[] block = new byte[8192];
-		while ((readLength = inflater.read(block)) != -1) {
-			inflatedOut.write(block, 0, readLength);
-		}
-
-		byte[] inflatedImageData = inflatedOut.toByteArray();
-		return inflatedImageData;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
-		List<byte[]> results = deflateImageDataSerially(inflatedImageData, compressionLevel);
+		final List<byte[]> results = deflateImageDataSerially(inflatedImageData, compressionLevel);
 
 		byte[] result = null;
 		for (int i = 0; i < results.size(); i++) {
@@ -60,14 +40,19 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 				result = data;
 			}
 		}
-		this.log.debug("Image bytes=%d", (result == null) ? -1 : result.length);
+		log.debug("Image bytes=%d", (result == null) ? -1 : result.length);
 
 		return result;
 	}
 
+	@Override
+	public String encodeBytes(byte[] bytes) {
+		return Base64.encodeBytes(bytes);
+	}
+
 	/* */
 	private List<byte[]> deflateImageDataSerially(byte[] inflatedImageData, Integer compressionLevel) {
-		List<byte[]> results = new ArrayList<>();
+		final List<byte[]> results = new ArrayList<>();
 
 		try {
 			results.add(deflateImageData(inflatedImageData, compressionLevel));
@@ -80,7 +65,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 
 	/* */
 	private byte[] deflateImageData(byte[] inflatedImageData, Integer compressionLevel) throws IOException {
-		byte[] result = deflate(inflatedImageData).toByteArray();
+		final byte[] result = deflate(inflatedImageData).toByteArray();
 		log.debug("Compression strategy: zopfli, compression level=%d, bytes=%d", compressionLevel, (result == null) ? -1 : result.length);
 
 		return result;

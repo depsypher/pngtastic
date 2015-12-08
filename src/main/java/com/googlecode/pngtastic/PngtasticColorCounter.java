@@ -1,6 +1,7 @@
 package com.googlecode.pngtastic;
 
 import com.googlecode.pngtastic.core.PngColorCounter;
+import com.googlecode.pngtastic.core.PngException;
 import com.googlecode.pngtastic.core.PngImage;
 
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class PngtasticColorCounter {
 
 				System.out.println(counter.getStats());
 
-			} catch (IOException e) {
+			} catch (PngException | IOException e) {
 				e.printStackTrace();
 			}
 		}

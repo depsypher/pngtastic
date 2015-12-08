@@ -7,12 +7,14 @@ import com.googlecode.pngtastic.core.processing.PngtasticCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.zip.InflaterInputStream;
 
 /**
  * Base class for png image processing
@@ -48,7 +50,27 @@ public abstract class PngProcessor {
 		}
 		imageData.close();
 
-		return pngCompressionHandler.inflate(imageBytes);
+		return inflate(imageBytes);
+	}
+
+	/**
+	 * Inflate (decompress) the compressed image data
+	 *
+	 * @param imageBytes A stream containing the compressed image data
+	 * @return A byte array containing the uncompressed data
+	 */
+	public byte[] inflate(ByteArrayOutputStream imageBytes) throws IOException {
+		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.toByteArray()));
+		ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream();
+
+		int readLength;
+		byte[] block = new byte[8192];
+		while ((readLength = inflater.read(block)) != -1) {
+			inflatedOut.write(block, 0, readLength);
+		}
+
+		byte[] inflatedImageData = inflatedOut.toByteArray();
+		return inflatedImageData;
 	}
 
 	protected List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height) {

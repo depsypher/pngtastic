@@ -1,6 +1,5 @@
 package com.googlecode.pngtastic.core.processing;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -9,13 +8,6 @@ import java.io.IOException;
  * @author rayvanderborght
  */
 public interface PngCompressionHandler {
-	/**
-	 * Inflate (decompress) the compressed image data
-	 *
-	 * @param deflatedImageData A stream containing the compressed image data
-	 * @return A byte array containing the uncompressed data
-	 */
-	public byte[] inflate(ByteArrayOutputStream deflatedImageData) throws IOException;
 
 	/**
 	 * Deflate (compress) the inflated data using the given compression level.
@@ -30,4 +22,6 @@ public interface PngCompressionHandler {
 	 * @return A byte array containing the compressed image data
 	 */
 	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException;
+
+	public String encodeBytes(byte[] bytes);
 }

@@ -33,6 +33,10 @@ public class PngColorCounter extends PngProcessor {
 		this(Logger.NONE, 0.01D, 0.01D, 30);
 	}
 
+	public PngColorCounter(double distThreshold, double freqThreshold, int minAlpha) {
+		this(Logger.NONE, distThreshold, freqThreshold, minAlpha);
+	}
+
 	public PngColorCounter(String logLevel, double distThreshold, double freqThreshold, int minAlpha) {
 		super(logLevel);
 
@@ -76,9 +80,9 @@ public class PngColorCounter extends PngProcessor {
 	}
 
 	private List<PngPixel> getColors(PngImage original, List<byte[]> rows) throws IOException {
-		Map<PngPixel, Integer> colors = new LinkedHashMap<>();
-		PngImageType imageType = PngImageType.forColorType(original.getColorType());
-		int sampleSize = original.getSampleBitCount();
+		final Map<PngPixel, Integer> colors = new LinkedHashMap<>();
+		final PngImageType imageType = PngImageType.forColorType(original.getColorType());
+		final int sampleSize = original.getSampleBitCount();
 
 		int y = 0;
 		for (byte[] row : rows) {
@@ -99,7 +103,7 @@ public class PngColorCounter extends PngProcessor {
 						break;
 
 					case TRUECOLOR: {
-						PngPixel pixel;
+						final PngPixel pixel;
 						if (original.getBitDepth() == 8) {
 							final int r = dis.readUnsignedByte();
 							final int g = dis.readUnsignedByte();
@@ -119,7 +123,7 @@ public class PngColorCounter extends PngProcessor {
 					}
 
 					case TRUECOLOR_ALPHA: {
-						PngPixel pixel;
+						final PngPixel pixel;
 						if (original.getBitDepth() == 8) {
 							final int r = dis.readUnsignedByte();
 							final int g = dis.readUnsignedByte();
@@ -149,8 +153,8 @@ public class PngColorCounter extends PngProcessor {
 		log.debug("Full color count=%d", colors.size());
 
 		if (freqThreshold > 0) {
-			int minFreq = (int) (original.getWidth() * original.getHeight() * freqThreshold);
-			for (Iterator<Map.Entry<PngPixel, Integer>> it = colors.entrySet().iterator(); it.hasNext(); ) {
+			final int minFreq = (int) (original.getWidth() * original.getHeight() * freqThreshold);
+			for (Iterator<Map.Entry<PngPixel, Integer>> it = colors.entrySet().iterator(); it.hasNext();) {
 				final Entry<PngPixel, Integer> entry = it.next();
 				if (entry.getValue() < minFreq) {
 					it.remove();
@@ -161,8 +165,7 @@ public class PngColorCounter extends PngProcessor {
 
 		final List<PngPixel> results = new ArrayList<>(colors.keySet());
 		for (PngPixel pixel : results) {
-			final Integer freq = colors.get(pixel);
-			pixel.setFreq(freq);
+			pixel.setFreq(colors.get(pixel));
 		}
 
 		return results;

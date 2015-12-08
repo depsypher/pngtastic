@@ -94,8 +94,6 @@ public class PngImage {
 			} while (length > 0 && !PngChunk.IMAGE_TRAILER.equals(chunk.getTypeString()));
 		} catch (IOException e) {
 			this.log.error("Error: %s", e.getMessage());
-		} catch (PngException e) {
-			this.log.error("Error: %s", e.getMessage());
 		}
 	}
 

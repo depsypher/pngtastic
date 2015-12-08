@@ -1,5 +1,6 @@
 package com.googlecode.pngtastic;
 
+import com.googlecode.pngtastic.core.PngException;
 import com.googlecode.pngtastic.core.PngImage;
 import com.googlecode.pngtastic.core.PngLayerer;
 import com.googlecode.pngtastic.core.PngOptimizer;
@@ -49,7 +50,7 @@ public class PngtasticLayerer {
 			baseImage.export(file, outputBytes.toByteArray());
 
 			optimizer.optimize(baseImage, file, false, compressionLevel);
-		} catch (IOException e) {
+		} catch (PngException | IOException e) {
 			e.printStackTrace();
 		}
 

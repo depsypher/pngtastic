@@ -1,6 +1,5 @@
 package com.googlecode.pngtastic.core;
 
-import com.googlecode.pngtastic.core.processing.Base64;
 import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
 
 import java.io.ByteArrayOutputStream;
@@ -44,42 +43,42 @@ public class PngOptimizer extends PngProcessor {
 
 		log.debug("=== OPTIMIZING ===");
 
-		long start = System.currentTimeMillis();
-		PngImage optimized = optimize(image, removeGamma, compressionLevel);
+		final long start = System.currentTimeMillis();
+		final PngImage optimized = optimize(image, removeGamma, compressionLevel);
 
-		ByteArrayOutputStream optimizedBytes = new ByteArrayOutputStream();
-		long optimizedSize = optimized.writeDataOutputStream(optimizedBytes).size();
+		final ByteArrayOutputStream optimizedBytes = new ByteArrayOutputStream();
+		final long optimizedSize = optimized.writeDataOutputStream(optimizedBytes).size();
 
-		File originalFile = new File(image.getFileName());
-		long originalFileSize = originalFile.length();
+		final File originalFile = new File(image.getFileName());
+		final long originalFileSize = originalFile.length();
 
-		byte[] optimalBytes = (optimizedSize < originalFileSize)
+		final byte[] optimalBytes = (optimizedSize < originalFileSize)
 				? optimizedBytes.toByteArray() : getFileBytes(originalFile, originalFileSize);
 
-		File exported = optimized.export(outputFileName, optimalBytes);
+		final File exported = optimized.export(outputFileName, optimalBytes);
 
-		long optimizedFileSize = exported.length();
-		long time = System.currentTimeMillis() - start;
+		final long optimizedFileSize = exported.length();
+		final long time = System.currentTimeMillis() - start;
 
 		log.debug("Optimized in %d milliseconds, size %d", time, optimizedSize);
 		log.debug("Original length in bytes: %d (%s)", originalFileSize, image.getFileName());
 		log.debug("Final length in bytes: %d (%s)", optimizedFileSize, outputFileName);
 
-		long fileSizeDifference = (optimizedFileSize <= originalFileSize)
+		final long fileSizeDifference = (optimizedFileSize <= originalFileSize)
 				? (originalFileSize - optimizedFileSize) : -(optimizedFileSize - originalFileSize);
 
 		log.info("%5.2f%% :%6dB ->%6dB (%5dB saved) - %s",
 				fileSizeDifference / Float.valueOf(originalFileSize) * 100,
 				originalFileSize, optimizedFileSize, fileSizeDifference, outputFileName);
 
-		String dataUri = (generateDataUriCss) ? Base64.encodeBytes(optimalBytes) : null;
+		final String dataUri = (generateDataUriCss) ? pngCompressionHandler.encodeBytes(optimalBytes) : null;
 
 		stats.add(new Stats(image.getFileName(), originalFileSize, optimizedFileSize, image.getWidth(), image.getHeight(), dataUri));
 	}
 
 	/** */
 	public PngImage optimize(PngImage image) throws IOException {
-		return this.optimize(image, false, null);
+		return optimize(image, false, null);
 	}
 
 	/** */
@@ -89,18 +88,18 @@ public class PngOptimizer extends PngProcessor {
 			return image;
 		}
 
-		PngImage result = new PngImage(log);
+		final PngImage result = new PngImage(log);
 		result.setInterlace((short) 0);
 
-		Iterator<PngChunk> itChunks = image.getChunks().iterator();
+		final Iterator<PngChunk> itChunks = image.getChunks().iterator();
 		PngChunk chunk = processHeadChunks(result, removeGamma, itChunks);
 
 		// collect image data chunks
-		byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
+		final byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
 
-		int scanlineLength = (int)(Math.ceil(image.getWidth() * image.getSampleBitCount() / 8F)) + 1;
+		final int scanlineLength = (int)(Math.ceil(image.getWidth() * image.getSampleBitCount() / 8F)) + 1;
 
-		List<byte[]> originalScanlines = (image.getInterlace() == 1)
+		final List<byte[]> originalScanlines = (image.getInterlace() == 1)
 				? pngInterlaceHandler.deInterlace((int) image.getWidth(), (int) image.getHeight(), image.getSampleBitCount(), inflatedImageData)
 				: getScanlines(inflatedImageData, image.getSampleBitCount(), scanlineLength, image.getHeight());
 
@@ -108,10 +107,10 @@ public class PngOptimizer extends PngProcessor {
 //		Map<PngPixel, Integer> colors = getColors(image, originalScanlines, 32);
 
 		// apply each type of filtering
-		Map<PngFilterType, List<byte[]>> filteredScanlines = new HashMap<>();
+		final Map<PngFilterType, List<byte[]>> filteredScanlines = new HashMap<>();
 		for (PngFilterType filterType : PngFilterType.standardValues()) {
 			log.debug("Applying filter: %s", filterType);
-			List<byte[]> scanlines = copyScanlines(originalScanlines);
+			final List<byte[]> scanlines = copyScanlines(originalScanlines);
 			pngFilterHandler.applyFiltering(filterType, scanlines, image.getSampleBitCount());
 
 			filteredScanlines.put(filterType, scanlines);
@@ -121,7 +120,7 @@ public class PngOptimizer extends PngProcessor {
 		PngFilterType bestFilterType = null;
 		byte[] deflatedImageData = null;
 		for (Entry<PngFilterType, List<byte[]>> entry : filteredScanlines.entrySet()) {
-			byte[] imageResult = pngCompressionHandler.deflate(serialize(entry.getValue()), compressionLevel, true);
+			final byte[] imageResult = pngCompressionHandler.deflate(serialize(entry.getValue()), compressionLevel, true);
 			if (deflatedImageData == null || imageResult.length < deflatedImageData.length) {
 				deflatedImageData = imageResult;
 				bestFilterType = entry.getKey();
@@ -129,10 +128,10 @@ public class PngOptimizer extends PngProcessor {
 		}
 
 		// see if adaptive filtering results in even better compression
-		List<byte[]> scanlines = copyScanlines(originalScanlines);
+		final List<byte[]> scanlines = copyScanlines(originalScanlines);
 		pngFilterHandler.applyAdaptiveFiltering(inflatedImageData, scanlines, filteredScanlines, image.getSampleBitCount());
 
-		byte[] adaptiveImageData = pngCompressionHandler.deflate(inflatedImageData, compressionLevel, true);
+		final byte[] adaptiveImageData = pngCompressionHandler.deflate(inflatedImageData, compressionLevel, true);
 		log.debug("Original=%d, Adaptive=%d, %s=%d", image.getImageData().length, adaptiveImageData.length,
 				bestFilterType, (deflatedImageData == null) ? 0 : deflatedImageData.length);
 
@@ -141,7 +140,7 @@ public class PngOptimizer extends PngProcessor {
 			bestFilterType = PngFilterType.ADAPTIVE;
 		}
 
-		PngChunk imageChunk = new PngChunk(PngChunk.IMAGE_DATA.getBytes(), deflatedImageData);
+		final PngChunk imageChunk = new PngChunk(PngChunk.IMAGE_DATA.getBytes(), deflatedImageData);
 		result.addChunk(imageChunk);
 
 		// finish it
@@ -160,7 +159,7 @@ public class PngOptimizer extends PngProcessor {
 		}
 
 		// make sure we have the IEND chunk
-		List<PngChunk> chunks = result.getChunks();
+		final List<PngChunk> chunks = result.getChunks();
 		if (chunks != null && !PngChunk.IMAGE_TRAILER.equals(chunks.get(chunks.size() - 1).getTypeString())) {
 			result.addChunk(new PngChunk(PngChunk.IMAGE_TRAILER.getBytes(), new byte[] { }));
 		}
@@ -170,7 +169,7 @@ public class PngOptimizer extends PngProcessor {
 
 	/* */
 	private List<byte[]> copyScanlines(List<byte[]> original) {
-		List<byte[]> copy = new ArrayList<>(original.size());
+		final List<byte[]> copy = new ArrayList<>(original.size());
 		for (byte[] scanline : original) {
 			copy.add(scanline.clone());
 		}
@@ -180,11 +179,11 @@ public class PngOptimizer extends PngProcessor {
 
 	/* */
 	private byte[] serialize(List<byte[]> scanlines) {
-		int scanlineLength = scanlines.get(0).length;
-		byte[] imageData = new byte[scanlineLength * scanlines.size()];
+		final int scanlineLength = scanlines.get(0).length;
+		final byte[] imageData = new byte[scanlineLength * scanlines.size()];
 		for (int i = 0; i < scanlines.size(); i++) {
-			int offset = i * scanlineLength;
-			byte[] scanline = scanlines.get(i);
+			final int offset = i * scanlineLength;
+			final byte[] scanline = scanlines.get(i);
 			System.arraycopy(scanline, 0, imageData, offset, scanlineLength);
 		}
 
@@ -234,14 +233,14 @@ public class PngOptimizer extends PngProcessor {
 	 * Get the css containing data uris of the images processed by the optimizer
 	 */
 	public void generateDataUriCss(String dir) throws IOException {
-		String path = (dir == null) ? "" : dir + "/";
-		PrintWriter out = new PrintWriter(path + "DataUriCss.html");
+		final String path = (dir == null) ? "" : dir + "/";
+		final PrintWriter out = new PrintWriter(path + "DataUriCss.html");
 
 		try {
 			out.append("<html>\n<head>\n\t<style>");
 
 			for (PngOptimizer.Stats stat : stats) {
-				String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
+				final String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
 				out.append('#').append(name).append(" {\n")
 						.append("\tbackground: url(\"data:image/png;base64,")
 						.append(stat.dataUri).append("\") no-repeat left top;\n")
@@ -252,7 +251,7 @@ public class PngOptimizer extends PngProcessor {
 			out.append("\t</style>\n</head>\n<body>\n");
 
 			for (PngOptimizer.Stats stat : stats) {
-				String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
+				final String name = stat.fileName.replaceAll("[^A-Za-z0-9]", "_");
 				out.append("\t<div id=\"").append(name).append("\"></div>\n");
 			}
 
@@ -265,7 +264,7 @@ public class PngOptimizer extends PngProcessor {
 	}
 
 	private byte[] getFileBytes(File originalFile, long originalFileSize) throws IOException {
-		ByteBuffer buffer = ByteBuffer.allocate((int) originalFileSize);
+		final ByteBuffer buffer = ByteBuffer.allocate((int) originalFileSize);
 		FileInputStream ins = null;
 		try {
 			ins = new FileInputStream(originalFile);
@@ -281,7 +280,7 @@ public class PngOptimizer extends PngProcessor {
 	/* */
 	@SuppressWarnings("unused")
 	private void printData(byte[] inflatedImageData) {
-		StringBuilder result = new StringBuilder();
+		final StringBuilder result = new StringBuilder();
 		for (byte b : inflatedImageData) {
 			result.append(String.format("%2x|", b));
 		}

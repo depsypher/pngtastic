@@ -1,5 +1,6 @@
 package com.googlecode.pngtastic;
 
+import com.googlecode.pngtastic.core.PngException;
 import com.googlecode.pngtastic.core.PngImage;
 import com.googlecode.pngtastic.core.PngOptimizer;
 
@@ -45,7 +46,7 @@ public class PngtasticOptimizer {
 
 				PngImage image = new PngImage(file);
 				optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);
-			} catch (IOException e) {
+			} catch (PngException | IOException e) {
 				e.printStackTrace();
 			}
 		}

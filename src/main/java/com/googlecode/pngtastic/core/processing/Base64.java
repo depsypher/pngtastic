@@ -158,7 +158,7 @@ import java.nio.CharBuffer;
  * @author rob@iharder.net
  * @version 2.3.7
  */
-public class Base64 {
+class Base64 {
 
 	/** No options specified. Value is zero. */
 	public final static int NO_OPTIONS = 0;
