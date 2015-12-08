@@ -21,14 +21,15 @@ public class PngtasticColorCounter {
 			+ "  --distThreshold    the distance below which two colors are considered similar (0.0 to 1.0)\n"
 			+ "  --freqThreshold    the percentage a color must be represented in the overall image (0.0 to 1.0)\n"
 			+ "  --minAlpha         the minimum alpha channel value a pixel must have\n"
+			+ "  --timeout          the number of milliseconds after which color counting will be aborted\n"
 			+ "  --logLevel         the level of logging output (none, debug, info, or error)\n";
 
 	/** */
 	public PngtasticColorCounter(String[] fileNames, String logLevel, double distThreshold, double freqThreshold,
-			int minAlpha) {
+			int minAlpha, long timeout) {
 
 		long start = System.currentTimeMillis();
-		PngColorCounter counter = new PngColorCounter(logLevel, distThreshold, freqThreshold, minAlpha);
+		PngColorCounter counter = new PngColorCounter(logLevel, distThreshold, freqThreshold, minAlpha, timeout);
 
 		for (String file : fileNames) {
 			try {
@@ -72,9 +73,10 @@ public class PngtasticColorCounter {
 		Double distThreshold = safeDouble(options.get("--distThreshold"), 0.005D);  // min @8bit: 0.000005
 		Double freqThreshold = safeDouble(options.get("--freqThreshold"), 0.0005D);
 		Integer minAlpha = safeInteger(options.get("--minAlpha"), 30);
+		Integer timeout = safeInteger(options.get("--timeout"), 0);
 		String logLevel = options.get("--logLevel");
 
-		new PngtasticColorCounter(files, logLevel, distThreshold, freqThreshold, minAlpha);
+		new PngtasticColorCounter(files, logLevel, distThreshold, freqThreshold, minAlpha, timeout);
 	}
 
 	private static Integer safeInteger(String input, Integer dflt) {

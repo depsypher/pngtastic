@@ -100,7 +100,7 @@ public abstract class PngProcessor {
 				break;
 			}
 
-			if (chunk.isRequired()) {
+			if (result != null && chunk.isRequired()) {
 				if (removeGamma && PngChunk.IMAGE_GAMA.equalsIgnoreCase(chunk.getTypeString())) {
 					continue;
 				}

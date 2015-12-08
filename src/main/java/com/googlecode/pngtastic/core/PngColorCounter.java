@@ -25,24 +25,26 @@ public class PngColorCounter extends PngProcessor {
 	private final double distThreshold;
 	private final double freqThreshold;
 	private final int minAlpha;
+	private final long timeout;
 
 	private ColorCounterResult colorCounterResult;
 	public ColorCounterResult getResult() { return colorCounterResult; }
 
 	public PngColorCounter() {
-		this(Logger.NONE, 0.01D, 0.01D, 30);
+		this(Logger.NONE, 0.01D, 0.01D, 30, 0L);
 	}
 
 	public PngColorCounter(double distThreshold, double freqThreshold, int minAlpha) {
-		this(Logger.NONE, distThreshold, freqThreshold, minAlpha);
+		this(Logger.NONE, distThreshold, freqThreshold, minAlpha, 0L);
 	}
 
-	public PngColorCounter(String logLevel, double distThreshold, double freqThreshold, int minAlpha) {
+	public PngColorCounter(String logLevel, double distThreshold, double freqThreshold, int minAlpha, long timeout) {
 		super(logLevel);
 
 		this.distThreshold = distThreshold;
 		this.freqThreshold = freqThreshold;
 		this.minAlpha = minAlpha;
+		this.timeout = timeout;
 
 		this.pngInterlaceHandler = new PngtasticInterlaceHandler(log, pngFilterHandler);
 	}
@@ -56,11 +58,11 @@ public class PngColorCounter extends PngProcessor {
 			log.debug("not supported");
 			return;
 		}
-		final PngImage result = new PngImage(log);
-		result.setInterlace((short) 0);
+
+		final long start = System.currentTimeMillis();
 
 		final Iterator<PngChunk> itChunks = image.getChunks().iterator();
-		final PngChunk chunk = processHeadChunks(result, false, itChunks);
+		final PngChunk chunk = processHeadChunks(null, false, itChunks);
 
 		// collect image data chunks
 		final byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
@@ -73,19 +75,23 @@ public class PngColorCounter extends PngProcessor {
 				? pngInterlaceHandler.deInterlace((int) width, (int) height, image.getSampleBitCount(), inflatedImageData)
 				: getScanlines(inflatedImageData, image.getSampleBitCount(), scanlineLength, height);
 
-		final List<PngPixel> colors = getColors(image, originalScanlines);
-		final List<PngPixel> results = getMergedColors(image, colors);
+		final List<PngPixel> colors = getColors(image, originalScanlines, start);
+		final List<PngPixel> results = getMergedColors(image, colors, start);
 
-		colorCounterResult = new ColorCounterResult(image.getFileName(), width, height, colors.size(), results);
+		final long elapsed = System.currentTimeMillis() - start;
+		colorCounterResult = new ColorCounterResult(image.getFileName(), width, height, colors.size(), results, elapsed);
 	}
 
-	private List<PngPixel> getColors(PngImage original, List<byte[]> rows) throws IOException {
+	private List<PngPixel> getColors(PngImage original, List<byte[]> rows, long start) throws IOException {
 		final Map<PngPixel, Integer> colors = new LinkedHashMap<>();
 		final PngImageType imageType = PngImageType.forColorType(original.getColorType());
 		final int sampleSize = original.getSampleBitCount();
 
 		int y = 0;
 		for (byte[] row : rows) {
+			if (timeout > 0 && (System.currentTimeMillis() - start > timeout)) {
+				throw new PngException("Reached " + timeout + "ms timeout");
+			}
 			final int sampleCount = ((row.length - 1) * 8) / sampleSize;
 			final ByteArrayInputStream ins = new ByteArrayInputStream(row);
 			final DataInputStream dis = new DataInputStream(ins);
@@ -171,11 +177,15 @@ public class PngColorCounter extends PngProcessor {
 		return results;
 	}
 
-	private List<PngPixel> getMergedColors(PngImage image, List<PngPixel> colors) {
+	private List<PngPixel> getMergedColors(PngImage image, List<PngPixel> colors, long start) {
 		final int bits = image.getBitDepth();
 		final List<PngPixel> copy = new ArrayList<>(colors);
 
 		for (PngPixel pa : colors) {
+			if (timeout > 0 && (System.currentTimeMillis() - start > timeout)) {
+				throw new PngException("Reached " + timeout + "ms timeout");
+			}
+
 			if (!pa.isDuplicate()) {
 				for (Iterator<PngPixel> it = copy.iterator(); it.hasNext();) {
 					final PngPixel pb = it.next();
@@ -214,13 +224,15 @@ public class PngColorCounter extends PngProcessor {
 		private final long height;
 		private final int totalColors;
 		private final List<PngPixel> dominantColors;
+		private final long elapsed;
 
-		public ColorCounterResult(String fileName, long width, long height, int totalColors, List<PngPixel> dominantColors) {
+		public ColorCounterResult(String fileName, long width, long height, int totalColors, List<PngPixel> dominantColors, long elapsed) {
 			this.fileName = fileName;
 			this.width = width;
 			this.height = height;
 			this.totalColors = totalColors;
 			this.dominantColors = dominantColors;
+			this.elapsed = elapsed;
 		}
 
 		@Override
@@ -229,7 +241,7 @@ public class PngColorCounter extends PngProcessor {
 					+ "\nCandidates: " + totalColors
 					+ "\nDominant Colors: " + dominantColors.size()
 					+ "\nColors: " + dominantColors.toString()
-					+ "\n";
+					+ "\nElapsed: " + elapsed + "ms\n";
 		}
 
 		public String getFileName() {
@@ -246,6 +258,9 @@ public class PngColorCounter extends PngProcessor {
 		}
 		public List<PngPixel> getDominantColors() {
 			return dominantColors;
+		}
+		public long getElapsed() {
+			return elapsed;
 		}
 	}
 }
