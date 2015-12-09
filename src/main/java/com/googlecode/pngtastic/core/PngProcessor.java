@@ -39,18 +39,18 @@ public abstract class PngProcessor {
 
 	protected byte[] getInflatedImageData(PngChunk chunk, Iterator<PngChunk> itChunks) throws IOException {
 		final ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
-		final DataOutputStream imageData = new DataOutputStream(imageBytes);
-		while (chunk != null) {
-			if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString())) {
-				imageData.write(chunk.getData());
-			} else {
-				break;
+		try (final DataOutputStream imageData = new DataOutputStream(imageBytes)) {
+			while (chunk != null) {
+				if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString())) {
+					imageData.write(chunk.getData());
+				} else {
+					break;
+				}
+				chunk = itChunks.hasNext() ? itChunks.next() : null;
 			}
-			chunk = itChunks.hasNext() ? itChunks.next() : null;
-		}
-		imageData.close();
 
-		return inflate(imageBytes);
+			return inflate(imageBytes);
+		}
 	}
 
 	/**
@@ -61,16 +61,15 @@ public abstract class PngProcessor {
 	 */
 	public byte[] inflate(ByteArrayOutputStream imageBytes) throws IOException {
 		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.toByteArray()));
-		ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream();
+		try (final ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream()) {
+			int readLength;
+			final byte[] block = new byte[8192];
+			while ((readLength = inflater.read(block)) != -1) {
+				inflatedOut.write(block, 0, readLength);
+			}
 
-		int readLength;
-		byte[] block = new byte[8192];
-		while ((readLength = inflater.read(block)) != -1) {
-			inflatedOut.write(block, 0, readLength);
+			return inflatedOut.toByteArray();
 		}
-
-		byte[] inflatedImageData = inflatedOut.toByteArray();
-		return inflatedImageData;
 	}
 
 	protected List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height) {
@@ -104,13 +103,8 @@ public abstract class PngProcessor {
 				if (removeGamma && PngChunk.IMAGE_GAMA.equalsIgnoreCase(chunk.getTypeString())) {
 					continue;
 				}
-				ByteArrayOutputStream bytes = new ByteArrayOutputStream(chunk.getLength());
-				DataOutputStream data = new DataOutputStream(bytes);
 
-				data.write(chunk.getData());
-				data.close();
-
-				PngChunk newChunk = new PngChunk(chunk.getType(), bytes.toByteArray());
+				PngChunk newChunk = new PngChunk(chunk.getType(), chunk.getData());
 				if (PngChunk.IMAGE_HEADER.equals(chunk.getTypeString())) {
 					newChunk.setInterlace((byte) 0);
 				}
