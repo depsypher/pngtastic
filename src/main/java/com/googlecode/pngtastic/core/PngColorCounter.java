@@ -1,5 +1,6 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.processing.PngByteArrayOutputStream;
 import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
@@ -69,7 +70,7 @@ public class PngColorCounter extends PngProcessor {
 		final PngChunk chunk = processHeadChunks(null, false, itChunks);
 
 		// collect image data chunks
-		final byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
+		final PngByteArrayOutputStream inflatedImageData = getInflatedImageData(chunk, itChunks);
 
 		final long width = image.getWidth();
 		final long height = image.getHeight();

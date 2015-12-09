@@ -1,5 +1,6 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.processing.PngByteArrayOutputStream;
 import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
 
 import java.io.ByteArrayOutputStream;
@@ -95,7 +96,7 @@ public class PngOptimizer extends PngProcessor {
 		PngChunk chunk = processHeadChunks(result, removeGamma, itChunks);
 
 		// collect image data chunks
-		final byte[] inflatedImageData = getInflatedImageData(chunk, itChunks);
+		final PngByteArrayOutputStream inflatedImageData = getInflatedImageData(chunk, itChunks);
 
 		final int scanlineLength = (int)(Math.ceil(image.getWidth() * image.getSampleBitCount() / 8F)) + 1;
 
@@ -178,7 +179,7 @@ public class PngOptimizer extends PngProcessor {
 	}
 
 	/* */
-	private byte[] serialize(List<byte[]> scanlines) {
+	private PngByteArrayOutputStream serialize(List<byte[]> scanlines) {
 		final int scanlineLength = scanlines.get(0).length;
 		final byte[] imageData = new byte[scanlineLength * scanlines.size()];
 		for (int i = 0; i < scanlines.size(); i++) {
@@ -187,7 +188,7 @@ public class PngOptimizer extends PngProcessor {
 			System.arraycopy(scanline, 0, imageData, offset, scanlineLength);
 		}
 
-		return imageData;
+		return new PngByteArrayOutputStream(imageData);
 	}
 
 	/**

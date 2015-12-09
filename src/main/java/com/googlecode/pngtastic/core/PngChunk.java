@@ -37,27 +37,27 @@ public class PngChunk {
 
 	/** */
 	public PngChunk(byte[] type, byte[] data) {
-		this.type = (type == null) ? null : type.clone();
-		this.data = (data == null) ? null : data.clone();
+		this.type = type;
+		this.data = data;
 	}
 
 	/** */
 	public String getTypeString() {
 		try {
 			return new String(this.type, "UTF8");
-		} catch(UnsupportedEncodingException e) {
+		} catch (UnsupportedEncodingException e) {
 			return "";
 		}
 	}
 
 	/** */
 	public byte[] getType() {
-		return (this.type == null) ? null : this.type.clone();
+		return this.type;
 	}
 
 	/** */
 	public byte[] getData() {
-		return (this.data == null) ? null : this.data.clone();
+		return this.data;
 	}
 
 	/** */

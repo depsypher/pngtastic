@@ -1,7 +1,8 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.processing.PngByteArrayOutputStream;
+
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -164,7 +165,7 @@ public class PngImage {
 	/** */
 	public byte[] getImageData() {
 		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			PngByteArrayOutputStream out = new PngByteArrayOutputStream();
 
 			// Write all the IDAT data
 			for (PngChunk chunk : chunks) {
@@ -172,7 +173,7 @@ public class PngImage {
 					out.write(chunk.getData());
 				}
 			}
-			return out.toByteArray();
+			return out.get();
 		} catch (IOException e) {
 			System.out.println("Couldn't get image data: " + e);
 		}

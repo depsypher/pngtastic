@@ -1,12 +1,12 @@
 package com.googlecode.pngtastic.core.processing;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.googlecode.pngtastic.core.Logger;
 import com.googlecode.pngtastic.core.PngException;
 import com.googlecode.pngtastic.core.PngFilterType;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implement PNG filtering and defiltering
@@ -50,7 +50,7 @@ public class PngtasticFilterHandler implements PngFilterHandler {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void applyAdaptiveFiltering(byte[] inflatedImageData, List<byte[]> scanlines, Map<PngFilterType, List<byte[]>> filteredScanLines, int sampleSize) throws IOException {
+	public void applyAdaptiveFiltering(PngByteArrayOutputStream inflatedImageData, List<byte[]> scanlines, Map<PngFilterType, List<byte[]>> filteredScanLines, int sampleSize) throws IOException {
 		for (int s = 0; s < scanlines.size(); s++) {
 			long bestSum = Long.MAX_VALUE;
 			PngFilterType bestFilterType = null;
@@ -71,7 +71,7 @@ public class PngtasticFilterHandler implements PngFilterHandler {
 			}
 		}
 
-		this.applyFiltering(null, scanlines, sampleSize);
+		applyFiltering(null, scanlines, sampleSize);
 	}
 
 	/**

@@ -29,6 +29,6 @@ public interface PngInterlaceHandler {
 	 * @param inflatedImageData The uncompressed image data, in interlaced form
 	 * @return A list of scanlines, each row represented as a byte array
 	 */
-	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData);
+	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, PngByteArrayOutputStream inflatedImageData);
 
 }

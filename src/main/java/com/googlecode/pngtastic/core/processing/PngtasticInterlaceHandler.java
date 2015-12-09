@@ -51,7 +51,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, byte[] inflatedImageData) {
+	public List<byte[]> deInterlace(int width, int height, int sampleBitCount, PngByteArrayOutputStream inflatedImageData) {
 		log.debug("Deinterlacing");
 
 		final List<byte[]> results = new ArrayList<>();
@@ -69,7 +69,7 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler {
 			for (int i = 0; i < subImageRows; i++) {
 				offset = subImageOffset + i * rowLength;
 				final byte[] row = new byte[rowLength];
-				System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
+				System.arraycopy(inflatedImageData.get(), offset, row, 0, rowLength);
 				try {
 					pngFilterHandler.deFilter(row, previousRow, sampleBitCount);
 				} catch (PngException e) {

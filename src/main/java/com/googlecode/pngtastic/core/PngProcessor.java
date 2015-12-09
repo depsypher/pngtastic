@@ -1,5 +1,6 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.processing.PngByteArrayOutputStream;
 import com.googlecode.pngtastic.core.processing.PngCompressionHandler;
 import com.googlecode.pngtastic.core.processing.PngFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngInterlaceHandler;
@@ -8,7 +9,6 @@ import com.googlecode.pngtastic.core.processing.PngtasticFilterHandler;
 import com.googlecode.pngtastic.core.processing.PngtasticInterlaceHandler;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,8 +37,10 @@ public abstract class PngProcessor {
 
 	}
 
-	protected byte[] getInflatedImageData(PngChunk chunk, Iterator<PngChunk> itChunks) throws IOException {
-		final ByteArrayOutputStream imageBytes = new ByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
+	protected PngByteArrayOutputStream getInflatedImageData(PngChunk chunk, Iterator<PngChunk> itChunks)
+			throws IOException {
+
+		final PngByteArrayOutputStream imageBytes = new PngByteArrayOutputStream(chunk == null ? 0 : chunk.getLength());
 		try (final DataOutputStream imageData = new DataOutputStream(imageBytes)) {
 			while (chunk != null) {
 				if (PngChunk.IMAGE_DATA.equals(chunk.getTypeString())) {
@@ -48,7 +50,6 @@ public abstract class PngProcessor {
 				}
 				chunk = itChunks.hasNext() ? itChunks.next() : null;
 			}
-
 			return inflate(imageBytes);
 		}
 	}
@@ -59,27 +60,27 @@ public abstract class PngProcessor {
 	 * @param imageBytes A stream containing the compressed image data
 	 * @return A byte array containing the uncompressed data
 	 */
-	public byte[] inflate(ByteArrayOutputStream imageBytes) throws IOException {
-		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.toByteArray()));
-		try (final ByteArrayOutputStream inflatedOut = new ByteArrayOutputStream()) {
+	public PngByteArrayOutputStream inflate(PngByteArrayOutputStream imageBytes) throws IOException {
+		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.get()));
+		try (final PngByteArrayOutputStream inflatedOut = new PngByteArrayOutputStream()) {
 			int readLength;
 			final byte[] block = new byte[8192];
+
 			while ((readLength = inflater.read(block)) != -1) {
 				inflatedOut.write(block, 0, readLength);
 			}
-
-			return inflatedOut.toByteArray();
+			return inflatedOut;
 		}
 	}
 
-	protected List<byte[]> getScanlines(byte[] inflatedImageData, int sampleBitCount, int rowLength, long height) {
+	protected List<byte[]> getScanlines(PngByteArrayOutputStream inflatedImageData, int sampleBitCount, int rowLength, long height) {
 		final List<byte[]> rows = new ArrayList<>(Math.max((int) height, 0));
 		byte[] previousRow = new byte[rowLength];
 
 		for (int i = 0; i < height; i++) {
 			final int offset = i * rowLength;
 			final byte[] row = new byte[rowLength];
-			System.arraycopy(inflatedImageData, offset, row, 0, rowLength);
+			System.arraycopy(inflatedImageData.get(), offset, row, 0, rowLength);
 			try {
 				pngFilterHandler.deFilter(row, previousRow, sampleBitCount);
 				rows.add(row);
@@ -104,7 +105,7 @@ public abstract class PngProcessor {
 					continue;
 				}
 
-				PngChunk newChunk = new PngChunk(chunk.getType(), chunk.getData());
+				PngChunk newChunk = new PngChunk(chunk.getType(), chunk.getData().clone());
 				if (PngChunk.IMAGE_HEADER.equals(chunk.getTypeString())) {
 					newChunk.setInterlace((byte) 0);
 				}

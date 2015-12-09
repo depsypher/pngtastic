@@ -14,14 +14,14 @@ public interface PngCompressionHandler {
 	 * If compressionLevel is null then do a brute force trial of all
 	 * compression levels to find the best one.
 	 *
-	 * @param inflatedImageData A byte array containing the uncompressed image data
+	 * @param inflatedImageData A PngByteArrayOutputStream containing the uncompressed image data
 	 * @param compressionLevel The compression level to use
 	 * @param concurrent Whether to test scanlines for best compressing filter type
 	 *        concurrently. Should be set to true for performance, or false in
 	 *        environments like google app engine that don't allow thread creation.
 	 * @return A byte array containing the compressed image data
 	 */
-	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException;
+	public byte[] deflate(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException;
 
 	public String encodeBytes(byte[] bytes);
 }

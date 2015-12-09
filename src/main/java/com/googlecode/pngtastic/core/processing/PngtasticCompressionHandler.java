@@ -39,7 +39,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
+	public byte[] deflate(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
 		final List<byte[]> results = (concurrent)
 				? deflateImageDataConcurrently(inflatedImageData, compressionLevel)
 				: deflateImageDataSerially(inflatedImageData, compressionLevel, Deflater.DEFAULT_STRATEGY);
@@ -66,7 +66,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	 * different compression strategies in separate threads to take
 	 * advantage of multiple core architectures.
 	 */
-	private List<byte[]> deflateImageDataConcurrently(final byte[] inflatedImageData, final Integer compressionLevel) {
+	private List<byte[]> deflateImageDataConcurrently(final PngByteArrayOutputStream inflatedImageData, final Integer compressionLevel) {
 		final Collection<byte[]> results = new ConcurrentLinkedQueue<>();
 
 		final Collection<Callable<Object>> tasks = new ArrayList<>();
@@ -95,7 +95,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private List<byte[]> deflateImageDataSerially(byte[] inflatedImageData, Integer compressionLevel, Integer compressionStrategy) {
+	private List<byte[]> deflateImageDataSerially(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel, Integer compressionStrategy) {
 		final List<byte[]> results = new ArrayList<>();
 
 		final List<Integer> strategies = (compressionStrategy == null) ? compressionStrategies
@@ -113,7 +113,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private byte[] deflateImageData(byte[] inflatedImageData, int strategy, Integer compressionLevel) throws IOException {
+	private byte[] deflateImageData(PngByteArrayOutputStream inflatedImageData, int strategy, Integer compressionLevel) throws IOException {
 		byte[] result = null;
 		int bestCompression = Deflater.BEST_COMPRESSION;
 
@@ -136,13 +136,13 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private ByteArrayOutputStream deflate(byte[] inflatedImageData, int strategy, int compression) throws IOException {
+	private ByteArrayOutputStream deflate(PngByteArrayOutputStream inflatedImageData, int strategy, int compression) throws IOException {
 		final ByteArrayOutputStream deflatedOut = new ByteArrayOutputStream();
 		final Deflater deflater = new Deflater(compression);
 		deflater.setStrategy(strategy);
 
 		final DeflaterOutputStream stream = new DeflaterOutputStream(deflatedOut, deflater);
-		stream.write(inflatedImageData);
+		stream.write(inflatedImageData.get(), 0, inflatedImageData.len());
 		stream.close();
 
 		return deflatedOut;

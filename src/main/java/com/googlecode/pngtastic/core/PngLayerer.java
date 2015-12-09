@@ -1,5 +1,7 @@
 package com.googlecode.pngtastic.core;
 
+import com.googlecode.pngtastic.core.processing.PngByteArrayOutputStream;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -43,13 +45,13 @@ public class PngLayerer extends PngProcessor {
 		final Iterator<PngChunk> itBaseChunks = baseImage.getChunks().iterator();
 
 		final PngChunk lastBaseChunk = processHeadChunks(new PngImage(), itBaseChunks);
-		final byte[] inflatedBaseImageData = getInflatedImageData(lastBaseChunk, itBaseChunks);
+		final PngByteArrayOutputStream inflatedBaseImageData = getInflatedImageData(lastBaseChunk, itBaseChunks);
 		final List<byte[]> baseImageScanlines = getScanlines(baseImage, inflatedBaseImageData);
 
 		final Iterator<PngChunk> itLayerChunks = layerImage.getChunks().iterator();
 
 		final PngChunk lastLayerChunk = processHeadChunks(result, itLayerChunks);
-		final byte[] inflatedLayerImageData = getInflatedImageData(lastLayerChunk, itLayerChunks);
+		final PngByteArrayOutputStream inflatedLayerImageData = getInflatedImageData(lastLayerChunk, itLayerChunks);
 		final List<byte[]> layerImageScanlines = getScanlines(layerImage, inflatedLayerImageData);
 
 		final List<byte[]> newImageScanlines = doLayering(baseImage, layerImage, baseImageScanlines, layerImageScanlines);
@@ -69,7 +71,7 @@ public class PngLayerer extends PngProcessor {
 	}
 
 	/* */
-	private List<byte[]> getScanlines(PngImage image, byte[] inflatedImageData) {
+	private List<byte[]> getScanlines(PngImage image, PngByteArrayOutputStream inflatedImageData) {
 		final int scanlineLength = Double.valueOf(Math.ceil(Long.valueOf(image.getWidth() * image.getSampleBitCount()) / 8F)).intValue() + 1;
 
 		final List<byte[]> originalScanlines = (image.getInterlace() == 1)
@@ -124,7 +126,7 @@ public class PngLayerer extends PngProcessor {
 	}
 
 	/* */
-	private byte[] serialize(List<byte[]> scanlines) {
+	private PngByteArrayOutputStream serialize(List<byte[]> scanlines) {
 		final int scanlineLength = scanlines.get(0).length;
 		final byte[] imageData = new byte[scanlineLength * scanlines.size()];
 
@@ -134,7 +136,7 @@ public class PngLayerer extends PngProcessor {
 			System.arraycopy(scanline, 0, imageData, offset, scanlineLength);
 		}
 
-		return imageData;
+		return new PngByteArrayOutputStream(imageData);
 	}
 
 	/* */

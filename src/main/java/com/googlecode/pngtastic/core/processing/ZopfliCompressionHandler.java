@@ -30,7 +30,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] deflate(byte[] inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
+	public byte[] deflate(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
 		final List<byte[]> results = deflateImageDataSerially(inflatedImageData, compressionLevel);
 
 		byte[] result = null;
@@ -51,7 +51,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private List<byte[]> deflateImageDataSerially(byte[] inflatedImageData, Integer compressionLevel) {
+	private List<byte[]> deflateImageDataSerially(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel) {
 		final List<byte[]> results = new ArrayList<>();
 
 		try {
@@ -64,7 +64,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private byte[] deflateImageData(byte[] inflatedImageData, Integer compressionLevel) throws IOException {
+	private byte[] deflateImageData(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel) throws IOException {
 		final byte[] result = deflate(inflatedImageData).toByteArray();
 		log.debug("Compression strategy: zopfli, compression level=%d, bytes=%d", compressionLevel, (result == null) ? -1 : result.length);
 
@@ -72,7 +72,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private ByteArrayOutputStream deflate(byte[] inflatedImageData) throws IOException {
+	private ByteArrayOutputStream deflate(PngByteArrayOutputStream inflatedImageData) throws IOException {
 		File imageData = null;
 		try {
 			imageData = File.createTempFile("imagedata", ".zopfli");
@@ -99,11 +99,11 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 		}
 	}
 
-	private FileOutputStream writeFileOutputStream(File out, byte[] bytes) throws IOException {
+	private FileOutputStream writeFileOutputStream(File out, PngByteArrayOutputStream bytes) throws IOException {
 		FileOutputStream outs = null;
 		try {
 			outs = new FileOutputStream(out);
-			outs.write(bytes);
+			outs.write(bytes.get(), 0, bytes.len());
 		} finally {
 			if (outs != null) {
 				outs.close();
