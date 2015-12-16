@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream;
  *
  * @author ray
  */
-public class PngByteArrayOutputStream  extends ByteArrayOutputStream {
+public class PngByteArrayOutputStream extends ByteArrayOutputStream {
 
 	private final int initialSize;
 

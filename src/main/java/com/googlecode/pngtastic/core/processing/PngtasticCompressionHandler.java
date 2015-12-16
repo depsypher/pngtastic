@@ -119,7 +119,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 
 		if (compressionLevel == null || compressionLevel > Deflater.BEST_COMPRESSION || compressionLevel < Deflater.NO_COMPRESSION) {
 			for (int compression = Deflater.BEST_COMPRESSION; compression > Deflater.NO_COMPRESSION; compression--) {
-				final ByteArrayOutputStream deflatedOut = this.deflate(inflatedImageData, strategy, compression);
+				final ByteArrayOutputStream deflatedOut = deflate(inflatedImageData, strategy, compression);
 
 				if (result == null || (result.length > deflatedOut.size())) {
 					result = deflatedOut.toByteArray();
@@ -127,7 +127,7 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 				}
 			}
 		} else {
-			result = this.deflate(inflatedImageData, strategy, compressionLevel).toByteArray();
+			result = deflate(inflatedImageData, strategy, compressionLevel).toByteArray();
 			bestCompression = compressionLevel;
 		}
 		log.debug("Compression strategy: %s, compression level=%d, bytes=%d", strategy, bestCompression, (result == null) ? -1 : result.length);

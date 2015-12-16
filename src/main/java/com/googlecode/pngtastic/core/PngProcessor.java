@@ -57,11 +57,11 @@ public abstract class PngProcessor {
 	/**
 	 * Inflate (decompress) the compressed image data
 	 *
-	 * @param imageBytes A stream containing the compressed image data
+	 * @param bytes A stream containing the compressed image data
 	 * @return A byte array containing the uncompressed data
 	 */
-	public PngByteArrayOutputStream inflate(PngByteArrayOutputStream imageBytes) throws IOException {
-		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(imageBytes.get()));
+	public PngByteArrayOutputStream inflate(PngByteArrayOutputStream bytes) throws IOException {
+		InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(bytes.get(), 0, bytes.len()));
 		try (final PngByteArrayOutputStream inflatedOut = new PngByteArrayOutputStream()) {
 			int readLength;
 			final byte[] block = new byte[8192];
