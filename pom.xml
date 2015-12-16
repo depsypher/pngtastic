@@ -137,6 +137,17 @@
 		</plugins>
 	</build>
 
+	<!-- Use "mvn site" to generate reports -->
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.3</version>
+			</plugin>
+		</plugins>
+	</reporting>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.ant</groupId>

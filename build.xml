@@ -7,7 +7,7 @@ Pngtastic - PNG image optimizer
 <project name="pngtastic" default="dist">
 
 	<property file="build.properties" />
-	<property name="pngtastic.version" value="1.0" />
+	<property name="pngtastic.version" value="1.1" />
 
 	<path id="project.classpath">
 		<fileset dir="lib">
@@ -57,28 +57,6 @@ Pngtastic - PNG image optimizer
 		<javadoc sourcepath="src/main/java" destdir="build/javadoc/api" packagenames="*">
 			<classpath refid="javadoc.classpath" />
 		</javadoc>
-	</target>
-
-	<!--
-	Run the findbugs static analysis on the codebase
-	-->
-	<target name="findbugs" depends="compile">
-		<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpath="findbugs-1.3.9/lib/findbugs-ant.jar" />
-		<mkdir dir="build/findbugs" />
-		<findbugs jvmargs="-Xmx256m -XX:MaxPermSize=128m"
-				home="findbugs-1.3.9"
-				output="xml:withMessages"
-				outputFile="build/findbugs/findbugs.xml"
-				excludefilter="findbugsFilter.xml">
-
-			<auxclasspath refid="project.classpath" />
-			<sourcepath path="src/main/java" />
-			<class location="build/pngtastic/classes" />
-		</findbugs>
-
-		<xslt in="build/findbugs/findbugs.xml"
-				style="findbugs-1.3.9/src/xsl/fancy.xsl"
-				out="build/findbugs/findbugs.html" />
 	</target>
 
 	<!--
