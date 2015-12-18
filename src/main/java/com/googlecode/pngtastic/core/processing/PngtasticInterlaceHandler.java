@@ -60,9 +60,13 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler {
 
 		int subImageOffset = 0;
 		for (int pass = 0; pass < 7; pass++) {
-			final int subImageRows = height / interlaceRowFrequency[pass];
-			final int subImageColumns = width / interlaceColumnFrequency[pass];
+			final int subImageRows = (((height - interlaceRowOffset[pass]) + (interlaceRowFrequency[pass] - 1)) / interlaceRowFrequency[pass]);
+			final int subImageColumns = (((width - interlaceColumnOffset[pass]) + (interlaceColumnFrequency[pass] - 1)) / interlaceColumnFrequency[pass]);
 			final int rowLength = Double.valueOf(Math.ceil(subImageColumns * sampleBitCount / 8D)).intValue() + 1;
+			final int cf = interlaceColumnFrequency[pass] * sampleSize;
+			final int co = interlaceColumnOffset[pass] * sampleSize;
+			final int rf = interlaceRowFrequency[pass];
+			final int ro = interlaceRowOffset[pass];
 
 			byte[] previousRow = new byte[rowLength];
 			int offset = 0;
@@ -79,10 +83,6 @@ public class PngtasticInterlaceHandler implements PngInterlaceHandler {
 				final int samples = (row.length - 1) / sampleSize;
 				for (int sample = 0; sample < samples; sample++) {
 					for (int b = 0; b < sampleSize; b++) {
-						final int cf = interlaceColumnFrequency[pass] * sampleSize;
-						final int co = interlaceColumnOffset[pass] * sampleSize;
-						final int rf = interlaceRowFrequency[pass];
-						final int ro = interlaceRowOffset[pass];
 						rows[i * rf + ro][sample * cf + co + b + 1] = row[(sample * sampleSize) + b + 1];
 					}
 				}
