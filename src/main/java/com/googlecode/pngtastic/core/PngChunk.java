@@ -28,7 +28,7 @@ public class PngChunk {
 	public static final String INTERNATIONAL_TEXTUAL_DATA	= "ITXT";
 	public static final String BACKGROUND_COLOR				= "BKGD";
 	public static final String IMAGE_HISTOGRAM				= "HIST";
-	public static final String PHYSICAL_PIXEL_DIMENSIONS	= "PHYS";
+	public static final String PHYSICAL_PIXEL_DIMENSIONS	= "pHYs";
 	public static final String SUGGESTED_PALETTE			= "SPLT";
 	public static final String IMAGE_LAST_MODIFICATION_TIME	= "TIME";
 

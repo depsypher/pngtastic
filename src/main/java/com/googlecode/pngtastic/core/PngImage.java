@@ -89,6 +89,12 @@ public class PngImage {
 
 				chunk = new PngChunk(type, data);
 
+//				log.debug("chunk: " + chunk.getTypeString());
+//				if ("pHYs".equals(chunk.getTypeString())) {
+//					for (byte x : chunk.getData())
+//						log.debug("data: " + x + "," + String.format("%x", x));
+//				}
+
 				if (!chunk.verifyCRC(crc)) {
 					throw new PngException("Corrupted file, crc check failed");
 				}
