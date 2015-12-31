@@ -82,7 +82,7 @@ public class PngOptimizerTask extends Task {
 					// make the directory this file is in (for nested dirs in a **/* fileset)
 					makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
 
-					PngImage image = new PngImage(inputPath);
+					PngImage image = new PngImage(inputPath, logLevel);
 					optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);
 				} catch (Exception e) {
 					log(String.format("Problem optimizing %s. Caught %s", inputPath, e.getMessage()));

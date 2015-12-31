@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Custom logger because I want to have zero dependancies; perhaps to be replaced with java.util logging.
+ * Custom logger because I want to have zero dependencies; perhaps to be replaced with java.util logging.
  *
  * @author rayvanderborght
  */
@@ -21,7 +21,7 @@ public class Logger {
 	/** */
 	Logger(String logLevel) {
 		this.logLevel = (logLevel == null || !LOG_LEVELS.contains(logLevel.toUpperCase()))
-				? INFO : logLevel.toUpperCase();
+				? NONE : logLevel.toUpperCase();
 	}
 
 	/**

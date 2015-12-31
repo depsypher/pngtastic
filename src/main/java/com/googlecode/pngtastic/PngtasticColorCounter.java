@@ -33,7 +33,7 @@ public class PngtasticColorCounter {
 
 		for (String file : fileNames) {
 			try {
-				PngImage image = new PngImage(file);
+				PngImage image = new PngImage(file, logLevel);
 				counter.count(image);
 
 				System.out.println(counter.getResult());

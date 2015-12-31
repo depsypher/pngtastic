@@ -64,14 +64,14 @@ public class PngImage {
 	}
 
 	/** */
-	public PngImage(String fileName) throws FileNotFoundException {
-		this(new BufferedInputStream(new FileInputStream(fileName)));
+	public PngImage(String fileName, String logLevel) throws FileNotFoundException {
+		this(new BufferedInputStream(new FileInputStream(fileName)), logLevel);
 		this.fileName = fileName;
 	}
 
 	/** */
-	public PngImage(InputStream ins) {
-		this();
+	public PngImage(InputStream ins, String logLevel) {
+		this(new Logger(logLevel));
 
 		try {
 			DataInputStream dis = new DataInputStream(ins);

@@ -35,11 +35,11 @@ public class PngtasticLayerer {
 		final PngOptimizer optimizer = new PngOptimizer(logLevel);
 
 		try {
-			PngImage baseImage = new PngImage(fileNames[0]);
+			PngImage baseImage = new PngImage(fileNames[0], logLevel);
 			for (int i = 1; i < fileNames.length; i++) {
 				final String file = fileNames[i];
 
-				final PngImage image = new PngImage(file);
+				final PngImage image = new PngImage(file, logLevel);
 				baseImage = layerer.layer(baseImage, image, compressionLevel, false);
 			}
 			final ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
