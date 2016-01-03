@@ -31,7 +31,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	 */
 	@Override
 	public byte[] deflate(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
-		final List<byte[]> results = deflateImageDataSerially(inflatedImageData, compressionLevel);
+		final List<byte[]> results = deflateImageDataSerially(inflatedImageData);
 
 		byte[] result = null;
 		for (int i = 0; i < results.size(); i++) {
@@ -51,11 +51,11 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private List<byte[]> deflateImageDataSerially(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel) {
+	private List<byte[]> deflateImageDataSerially(final PngByteArrayOutputStream inflatedImageData) {
 		final List<byte[]> results = new ArrayList<>();
 
 		try {
-			results.add(deflateImageData(inflatedImageData, compressionLevel));
+			results.add(deflateImageData(inflatedImageData));
 		} catch (Throwable e) {
 			log.error("Uncaught Exception: %s", e.getMessage());
 		}
@@ -64,9 +64,9 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
 	}
 
 	/* */
-	private byte[] deflateImageData(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel) throws IOException {
+	private byte[] deflateImageData(final PngByteArrayOutputStream inflatedImageData) throws IOException {
 		final byte[] result = deflate(inflatedImageData).toByteArray();
-		log.debug("Compression strategy: zopfli, compression level=%d, bytes=%d", compressionLevel, (result == null) ? -1 : result.length);
+		log.debug("Compression strategy: zopfli, bytes=%d", (result == null) ? -1 : result.length);
 
 		return result;
 	}

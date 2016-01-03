@@ -17,7 +17,7 @@ public class PngChunk {
 	public static final String IMAGE_TRAILER	= "IEND";
 
 	/** ancilliary chunks */
-	public static final String TRANSPARANCY					= "TRNS";
+	public static final String TRANSPARENCY					= "TRNS";
 	public static final String COLOR_SPACE_INFO				= "CHRM";
 	public static final String IMAGE_GAMA					= "GAMA";
 	public static final String EMBEDDED_ICCP_PROFILE		= "ICCP";
@@ -132,7 +132,7 @@ public class PngChunk {
 	/** */
 	public boolean isRequired() {
 		return this.isCritical()
-			|| TRANSPARANCY.equals(this.getTypeString().toUpperCase())
+			|| TRANSPARENCY.equals(this.getTypeString().toUpperCase())
 			|| IMAGE_GAMA.equals(this.getTypeString().toUpperCase())
 			|| COLOR_SPACE_INFO.equals(this.getTypeString().toUpperCase());
 	}
