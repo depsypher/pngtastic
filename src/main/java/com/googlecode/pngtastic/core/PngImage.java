@@ -70,6 +70,11 @@ public class PngImage {
 	}
 
 	/** */
+	public PngImage(InputStream ins) {
+		this(ins, null);
+	}
+
+	/** */
 	public PngImage(InputStream ins, String logLevel) {
 		this(new Logger(logLevel));
 
