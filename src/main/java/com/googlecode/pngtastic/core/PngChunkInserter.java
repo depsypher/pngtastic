@@ -14,6 +14,11 @@ import java.io.IOException;
  */
 public class PngChunkInserter {
 
+	/**
+	 * Conversion note: one inch is equal to exactly 0.0254 meters.
+	 * 300dpi = 300 / 0.0254 = 11,811.023622 = 11811 = 0x2E23 = new byte[] { 0, 0, 46, 35 }
+	 * http://comments.gmane.org/gmane.comp.graphics.png.general/2425
+	 */
 	private static final byte[] dpi300 = new byte[] { 0, 0, 46, 35, 0, 0, 46, 35, 1 };
 
 	public static final PngChunk dpi300Chunk = new PngChunk(PngChunk.PHYSICAL_PIXEL_DIMENSIONS.getBytes(), dpi300);
