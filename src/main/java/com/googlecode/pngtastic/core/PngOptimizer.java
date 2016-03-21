@@ -288,9 +288,13 @@ public class PngOptimizer extends PngProcessor {
 		log.debug(result.toString());
 	}
 
-    public void setCompressor(String compressor) {
-        if ("zopfli".equals(compressor)) {
-            this.pngCompressionHandler = new ZopfliCompressionHandler(log);
-        }
-    }
+	public void setCompressor(String compressor, Integer iterations) {
+		if ("zopfli".equals(compressor)) {
+			if (iterations != null) {
+				pngCompressionHandler = new ZopfliCompressionHandler(log, iterations);
+			} else {
+				pngCompressionHandler = new ZopfliCompressionHandler(log);
+			}
+		}
+	}
 }

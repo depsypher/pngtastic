@@ -43,6 +43,10 @@ public class PngOptimizerTask extends Task {
 	public String getCompressor() { return compressor; }
 	public void setCompressor(String compressor) { this.compressor = compressor; }
 
+	private Integer iterations;
+	public Integer getIterations() { return iterations; }
+	public void setIterations(Integer iterations) { this.iterations = iterations; }
+
 	private String logLevel;
 	public String getLogLevel() { return this.logLevel; }
 	public void setLogLevel(String logLevel) { this.logLevel = logLevel; }
@@ -67,7 +71,7 @@ public class PngOptimizerTask extends Task {
 	private void convert() {
 		long start = System.currentTimeMillis();
 		PngOptimizer optimizer = new PngOptimizer(logLevel);
-		optimizer.setCompressor(compressor);
+		optimizer.setCompressor(compressor, iterations);
 		optimizer.setGenerateDataUriCss(generateDataUriCss);
 
 		for (FileSet fileset : filesets) {

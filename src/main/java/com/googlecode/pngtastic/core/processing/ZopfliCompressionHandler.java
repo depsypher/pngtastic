@@ -16,14 +16,20 @@ import java.io.IOException;
  */
 public class ZopfliCompressionHandler implements PngCompressionHandler {
 
-    private static final Options OPTIONS = new Options(Options.BlockSplitting.FIRST, 15);
+    private static final int DEFAULT_ITERATIONS = 15;
+    private final Options options;
 
     private final Logger log;
     private final Zopfli zopfli;
 
     public ZopfliCompressionHandler(Logger log) {
+        this(log, DEFAULT_ITERATIONS);
+    }
+
+    public ZopfliCompressionHandler(Logger log, int iterations) {
         this.log = log;
-        this.zopfli = new Zopfli(8 * 1024 * 1024);
+        zopfli = new Zopfli(8 * 1024 * 1024);
+        options = new Options(Options.BlockSplitting.FIRST, iterations);
     }
 
     /**
@@ -31,7 +37,7 @@ public class ZopfliCompressionHandler implements PngCompressionHandler {
      */
     @Override
     public byte[] deflate(PngByteArrayOutputStream inflatedImageData, Integer compressionLevel, boolean concurrent) throws IOException {
-        Buffer result = zopfli.compress(OPTIONS, inflatedImageData.toByteArray());
+        Buffer result = zopfli.compress(options, inflatedImageData.toByteArray());
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(result.getSize());
         byteArrayOutputStream.write(result.getData(), 0, result.getSize());
         log.debug("Compression strategy: zopfli, bytes=%d", byteArrayOutputStream.size());
