@@ -54,6 +54,9 @@ public final class Zopfli {
 
     private void compressZlib(Options options, byte[] input,
                               Buffer output) {
+        output.append((byte) 0x78);
+        output.append((byte) 0xDA);
+
         Deflate.compress(cookie, options, input, output);
 
         int checksum = adler32(input);
