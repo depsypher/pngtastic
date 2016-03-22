@@ -73,7 +73,7 @@ Pngtastic - PNG image optimizer
 
 	<target name="optimize-zopfli" depends="dist">
 		<taskdef classname="com.googlecode.pngtastic.ant.PngOptimizerTask" classpath="build/dist/pngtastic-${pngtastic.version}.jar" name="pngtastic" />
-		<pngtastic todir="build/images" removeGamma="true" compressor="./lib/zopfli" loglevel="info">
+		<pngtastic todir="build/images" removeGamma="true" compressor="zopfli" loglevel="info">
 			<fileset dir="images">
 				<include name="optimizer/**/*.png" />
 			</fileset>
