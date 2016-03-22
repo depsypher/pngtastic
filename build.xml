@@ -7,7 +7,7 @@ Pngtastic - PNG image optimizer
 <project name="pngtastic" default="dist">
 
 	<property file="build.properties" />
-	<property name="pngtastic.version" value="1.1" />
+	<property name="pngtastic.version" value="1.2" />
 
 	<path id="project.classpath">
 		<fileset dir="lib">
