@@ -9,6 +9,13 @@ Pngtastic is PNG for Java. Just one small jar with no dependencies. It doesn't r
 - File size optimization
 - PNG image layering
 
+#### Available in Maven
+    <dependency>
+        <groupId>com.github.depsypher</groupId>
+        <artifactId>pngtastic</artifactId>
+        <version>1.2</version>
+    </dependency>
+
 #### New: Support for Zopfli compression!
 The latest code adds the ability to optimize png images using the new [zopfli](https://code.google.com/p/zopfli/) deflate compression algorithm. The java port is based heavily on [this](https://github.com/eustas/CafeUndZopfli).
 
