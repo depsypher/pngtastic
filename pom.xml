@@ -7,7 +7,7 @@
 
 	<groupId>com.github.depsypher</groupId>
 	<artifactId>pngtastic</artifactId>
-	<version>1.3-SNAPSHOT</version>
+	<version>1.3</version>
 
 	<name>Pngtastic</name>
 	<description>A pure Java PNG image optimization and manipulation library</description>
@@ -16,7 +16,7 @@
 	<scm>
 		<url>scm:git:https://github.com/depsypher/pngtastic</url>
 		<developerConnection>scm:git:https://github.com/depsypher/pngtastic</developerConnection>
-		<tag>HEAD</tag>
+		<tag>pngtastic-1.3</tag>
 	</scm>
 	<licenses>
 		<license>
