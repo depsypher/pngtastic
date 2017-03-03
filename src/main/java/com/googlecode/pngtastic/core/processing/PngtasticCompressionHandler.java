@@ -141,9 +141,13 @@ public class PngtasticCompressionHandler implements PngCompressionHandler {
 		final Deflater deflater = new Deflater(compression);
 		deflater.setStrategy(strategy);
 
-		final DeflaterOutputStream stream = new DeflaterOutputStream(deflatedOut, deflater);
-		stream.write(inflatedImageData.get(), 0, inflatedImageData.len());
-		stream.close();
+		try {
+			final DeflaterOutputStream stream = new DeflaterOutputStream(deflatedOut, deflater);
+			stream.write(inflatedImageData.get(), 0, inflatedImageData.len());
+			stream.close();
+		} finally {
+			deflater.end();
+		}
 
 		return deflatedOut;
 	}
