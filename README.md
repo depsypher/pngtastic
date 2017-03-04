@@ -1,6 +1,5 @@
 ## Pngtastic
 
-
 #### A pure Java API for dealing with PNG images
 
 Pngtastic is PNG for Java. Just one small jar with no dependencies. It doesn't rely on AWT, so it can be used in restrictive environments like Google App Engine (and probably Android, but haven't tried).
@@ -13,7 +12,7 @@ Pngtastic is PNG for Java. Just one small jar with no dependencies. It doesn't r
     <dependency>
         <groupId>com.github.depsypher</groupId>
         <artifactId>pngtastic</artifactId>
-        <version>1.2</version>
+        <version>1.3</version>
     </dependency>
 
 #### New: Support for Zopfli compression!
@@ -24,7 +23,7 @@ If you're willing to sacrifice compression speed in exchange for ridiculously go
 Example usage:
 
     $ ant dist
-    $ java -cp build/dist/pngtastic-1.1.jar com.googlecode.pngtastic.PngtasticOptimizer --compressor zopfli --iterations 32 --fileSuffix .min.png images/optimizer/amigaball.png
+    $ java -cp build/dist/pngtastic-1.3.jar com.googlecode.pngtastic.PngtasticOptimizer --compressor zopfli --iterations 32 --fileSuffix .min.png images/optimizer/amigaball.png
 
 So far I'm seeing better compression ratios for my test images than even the excellent ImageOptim app produces.
 
