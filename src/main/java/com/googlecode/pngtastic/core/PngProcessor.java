@@ -61,10 +61,8 @@ public abstract class PngProcessor {
 	 * @return A byte array containing the uncompressed data
 	 */
 	public PngByteArrayOutputStream inflate(PngByteArrayOutputStream bytes) throws IOException {
-		final ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes.get(), 0, bytes.len());
-
 		try (final PngByteArrayOutputStream inflatedOut = new PngByteArrayOutputStream();
-			 final InflaterInputStream inflater = new InflaterInputStream(bytesIn)) {
+		     final InflaterInputStream inflater = new InflaterInputStream(new ByteArrayInputStream(bytes.get(), 0, bytes.len()))) {
 
 			int readLength;
 			final byte[] block = new byte[8192];
