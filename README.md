@@ -12,10 +12,10 @@ Pngtastic is PNG for Java. Just one small jar with no dependencies. It doesn't r
     <dependency>
         <groupId>com.github.depsypher</groupId>
         <artifactId>pngtastic</artifactId>
-        <version>1.4</version>
+        <version>1.5</version>
     </dependency>
 
-#### New: Support for Zopfli compression!
+#### New: Support for Zopfli compression! (Not recommended for production: See Issue #7)
 The latest code adds the ability to optimize png images using the new [zopfli](https://code.google.com/p/zopfli/) deflate compression algorithm. The java port is based heavily on [this](https://github.com/eustas/CafeUndZopfli).
 
 If you're willing to sacrifice compression speed in exchange for ridiculously good compression ratios, you'll want to try using the optional zopfli compressor.
@@ -23,7 +23,7 @@ If you're willing to sacrifice compression speed in exchange for ridiculously go
 Example usage:
 
     $ mvn install
-    $ java -cp target/pngtastic-1.5-SNAPSHOT.jar com.googlecode.pngtastic.PngtasticOptimizer --compressor zopfli --iterations 32 --fileSuffix .min.png images/optimizer/amigaball.png
+    $ java -cp target/pngtastic-1.6-SNAPSHOT.jar com.googlecode.pngtastic.PngtasticOptimizer --compressor zopfli --iterations 32 --fileSuffix .min.png images/optimizer/amigaball.png
 
 So far I'm seeing better compression ratios for my test images than even the excellent ImageOptim app produces.
 
