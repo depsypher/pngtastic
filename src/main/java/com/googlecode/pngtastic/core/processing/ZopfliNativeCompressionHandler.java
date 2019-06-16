@@ -1,6 +1,7 @@
 package com.googlecode.pngtastic.core.processing;
 
 import com.googlecode.pngtastic.core.Logger;
+import com.googlecode.pngtastic.core.PngCompressionType;
 import com.googlecode.pngtastic.core.SystemDetector;
 
 import java.io.ByteArrayOutputStream;
@@ -22,9 +23,16 @@ import java.util.List;
  */
 public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 
+	private static PngCompressionType compressionMethod = PngCompressionType.GZIP;
 	private final Logger log;
 	private final String iterations;
 	private final static Path compressor = Paths.get("lib", "zopfli").toAbsolutePath();
+
+	public static void setCompressionMethod(PngCompressionType method) {
+		synchronized (compressor){
+			compressionMethod = method;
+		}
+	}
 
 	public ZopfliNativeCompressionHandler(Logger log, Integer iterations) {
 		this.log = log;
@@ -111,8 +119,10 @@ public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 		try {
 			imageData = File.createTempFile("imagedata", ".zopfli");
 			writeFileOutputStream(imageData, inflatedImageData);
-
-			ProcessBuilder p = new ProcessBuilder(compressor.toString(), "--i", iterations, "-c", "--zlib", imageData.getCanonicalPath());
+			ProcessBuilder p;
+			synchronized (compressor) {
+				p = new ProcessBuilder(compressor.toString(), "--i", iterations, "-c", compressionMethod.getMethod(), imageData.getCanonicalPath());
+			}
 			Process process = p.start();
 
 			ByteArrayOutputStream deflatedOut = new ByteArrayOutputStream();
