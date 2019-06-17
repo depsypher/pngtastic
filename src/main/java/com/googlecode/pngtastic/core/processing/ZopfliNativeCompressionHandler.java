@@ -23,14 +23,27 @@ import java.util.List;
  */
 public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 
-	private static PngCompressionType compressionMethod = PngCompressionType.ZLIB;
+	private static final List<PngCompressionType> compressionMethods = new ArrayList<>();
 	private final Logger log;
 	private final int iterations;
 	private final static Path compressor = Paths.get("lib", "zopfli").toAbsolutePath();
 
-	public static void setCompressionMethod(PngCompressionType method) {
-		synchronized (compressor){
-			compressionMethod = method;
+	static {
+		compressionMethods.add(PngCompressionType.ZLIB);
+		compressionMethods.add(PngCompressionType.DEFLATE);
+	}
+
+	public static void addCompressionMethod(PngCompressionType method) {
+		synchronized (compressionMethods){
+			if (!compressionMethods.contains(method)) {
+				compressionMethods.add(method);
+			}
+		}
+	}
+
+	public static void removeCompressionMethod(PngCompressionType method) {
+		synchronized (compressionMethods){
+			compressionMethods.remove(method);
 		}
 	}
 
@@ -116,31 +129,45 @@ public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 	/* */
 	private ByteArrayOutputStream deflate(PngByteArrayOutputStream inflatedImageData) throws IOException {
 		File imageData = null;
-		try {
-			imageData = File.createTempFile("imagedata", ".zopfli");
-			writeFileOutputStream(imageData, inflatedImageData);
-			ProcessBuilder p;
-			synchronized (compressor) {
-				p = new ProcessBuilder(compressor.toString(), "--i" + iterations, "-c", compressionMethod.getMethod(), imageData.getCanonicalPath());
-			}
-			Process process = p.start();
+		ArrayList<PngCompressionType> clone;
+		synchronized (compressionMethods) {
+			clone = new ArrayList<>(compressionMethods);
+		}
+		ByteArrayOutputStream deflatedOut = null;
+		ByteArrayOutputStream deflatedBest = null;
+		int i = 0;
+		for (PngCompressionType compressionType : clone) {
+			try {
+				imageData = File.createTempFile("imagedata", ".zopfli");
+				writeFileOutputStream(imageData, inflatedImageData);
+				ProcessBuilder p;
+				p = new ProcessBuilder(compressor.toString(), "--i" + iterations, "-c", compressionType.getMethod(), imageData.getCanonicalPath());
+				Process process = p.start();
 
-			ByteArrayOutputStream deflatedOut = new ByteArrayOutputStream();
-
-			int byteCount;
-			byte[] data = new byte[8192];
-
-			InputStream s = process.getInputStream();
-			while ((byteCount = s.read(data, 0, data.length)) != -1) {
-				deflatedOut.write(data, 0, byteCount);
-			}
-			deflatedOut.flush();
-			return deflatedOut;
-		} finally {
-			if (imageData != null) {
-				imageData.delete();
+				int byteCount;
+				byte[] data = new byte[8192];
+				deflatedOut = new ByteArrayOutputStream();
+				InputStream s = process.getInputStream();
+				while ((byteCount = s.read(data, 0, data.length)) != -1) {
+					deflatedOut.write(data, 0, byteCount);
+				}
+				deflatedOut.flush();
+				if (i == 0){
+					deflatedBest = deflatedOut;
+				} else if (deflatedOut.size() < deflatedBest.size()){
+					deflatedBest.close();
+					deflatedBest = deflatedOut;
+				} else {
+					deflatedOut.close();
+				}
+				i++;
+			} finally {
+				if (imageData != null) {
+					imageData.delete();
+				}
 			}
 		}
+		return deflatedBest;
 	}
 
 	private FileOutputStream writeFileOutputStream(File out, PngByteArrayOutputStream bytes) throws IOException {
