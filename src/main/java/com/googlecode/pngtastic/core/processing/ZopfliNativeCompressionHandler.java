@@ -25,7 +25,7 @@ public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 
 	private static PngCompressionType compressionMethod = PngCompressionType.ZLIB;
 	private final Logger log;
-	private final String iterations;
+	private final int iterations;
 	private final static Path compressor = Paths.get("lib", "zopfli").toAbsolutePath();
 
 	public static void setCompressionMethod(PngCompressionType method) {
@@ -39,7 +39,7 @@ public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 		if (iterations == null || iterations < 1){
 			iterations = 15;
 		}
-		this.iterations = iterations + "";
+		this.iterations = iterations;
 		try {
 			if (Files.notExists(compressor)) {
 				log.debug("Extracting proper native");
@@ -121,7 +121,7 @@ public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 			writeFileOutputStream(imageData, inflatedImageData);
 			ProcessBuilder p;
 			synchronized (compressor) {
-				p = new ProcessBuilder(compressor.toString(), "--i", iterations, "-c", compressionMethod.getMethod(), imageData.getCanonicalPath());
+				p = new ProcessBuilder(compressor.toString(), "--i" + iterations, "-c", compressionMethod.getMethod(), imageData.getCanonicalPath());
 			}
 			Process process = p.start();
 
