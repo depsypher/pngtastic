@@ -1,7 +1,7 @@
 package com.googlecode.pngtastic.core;
 
 public enum PngCompressionType {
-	GZIP("--gzip"),
+	ZLIB("--zlib"),
 	DEFLATE("--deflate");
 
 	private final String method;

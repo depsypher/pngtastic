@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class ZopfliNativeCompressionHandler implements PngCompressionHandler {
 
-	private static PngCompressionType compressionMethod = PngCompressionType.GZIP;
+	private static PngCompressionType compressionMethod = PngCompressionType.ZLIB;
 	private final Logger log;
 	private final String iterations;
 	private final static Path compressor = Paths.get("lib", "zopfli").toAbsolutePath();
