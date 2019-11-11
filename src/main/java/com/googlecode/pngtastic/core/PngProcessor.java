@@ -115,4 +115,14 @@ public abstract class PngProcessor {
 		}
 		return chunk;
 	}
+
+	/* */
+	@SuppressWarnings("unused")
+	protected void printData(byte[] inflatedImageData) {
+		final StringBuilder result = new StringBuilder();
+		for (byte b : inflatedImageData) {
+			result.append(String.format("%2x|", b));
+		}
+		log.debug(result.toString());
+	}
 }

@@ -13,6 +13,11 @@ public class PngException extends RuntimeException {
 	public PngException() {  }
 
 	/** */
+	public PngException(Exception e) {
+		super(e);
+	}
+
+	/** */
 	public PngException(String message) {
 		super(message);
 	}

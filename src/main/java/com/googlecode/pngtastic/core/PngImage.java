@@ -1,6 +1,7 @@
 package com.googlecode.pngtastic.core;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -67,6 +68,11 @@ public class PngImage {
 	public PngImage(String fileName, String logLevel) throws FileNotFoundException {
 		this(new BufferedInputStream(new FileInputStream(fileName)), logLevel);
 		this.fileName = fileName;
+	}
+
+	/** */
+	public PngImage(byte[] bytes) {
+		this(new ByteArrayInputStream(bytes), null);
 	}
 
 	/** */

@@ -278,16 +278,6 @@ public class PngOptimizer extends PngProcessor {
 		return buffer.array();
 	}
 
-	/* */
-	@SuppressWarnings("unused")
-	private void printData(byte[] inflatedImageData) {
-		final StringBuilder result = new StringBuilder();
-		for (byte b : inflatedImageData) {
-			result.append(String.format("%2x|", b));
-		}
-		log.debug(result.toString());
-	}
-
 	public void setCompressor(String compressor, Integer iterations) {
 		if ("zopfli".equals(compressor)) {
 			if (iterations != null) {
