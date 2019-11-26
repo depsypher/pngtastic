@@ -2,6 +2,7 @@ package com.googlecode.pngtastic.core;
 
 import com.googlecode.pngtastic.core.processing.PngByteArrayOutputStream;
 import com.googlecode.pngtastic.core.processing.ZopfliCompressionHandler;
+import com.googlecode.pngtastic.core.processing.ZopfliNativeCompressionHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -285,6 +286,8 @@ public class PngOptimizer extends PngProcessor {
 			} else {
 				pngCompressionHandler = new ZopfliCompressionHandler(log);
 			}
+		} else if ("zopfliNative".equalsIgnoreCase(compressor)){
+			pngCompressionHandler = new ZopfliNativeCompressionHandler(log, iterations);
 		}
 	}
 }
