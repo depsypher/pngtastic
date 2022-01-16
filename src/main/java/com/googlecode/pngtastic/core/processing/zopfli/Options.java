@@ -1,5 +1,4 @@
-/*
-Copyright 2014 Google Inc. All Rights Reserved.
+/* Copyright 2014 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,18 +17,41 @@ Author: eustas.ru@gmail.com (Eugene Klyuchnikov)
 
 package com.googlecode.pngtastic.core.processing.zopfli;
 
+/**
+ * Zopfli engine configuration.
+ */
 public final class Options {
-    final int numIterations;
-    final BlockSplitting blockSplitting;
 
-    public Options(BlockSplitting blockSplitting, int numIterations) {
-        this.blockSplitting = blockSplitting;
-        this.numIterations = numIterations;
-    }
+  /**
+   * Block splitting strategy.
+   */
+  public enum BlockSplitting {
+    FIRST,
+    LAST,
+    NONE
+  }
 
-    public enum BlockSplitting {
-        FIRST,
-        LAST,
-        NONE
-    }
+  /**
+   * Output framing format.
+   */
+  public enum OutputFormat {
+    DEFLATE,
+    GZIP,
+    ZLIB
+  }
+
+  public final int numIterations;
+  public final BlockSplitting blockSplitting;
+  public final OutputFormat outputType;
+
+  public Options(OutputFormat outputType, BlockSplitting blockSplitting,
+      int numIterations) {
+    this.outputType = outputType;
+    this.blockSplitting = blockSplitting;
+    this.numIterations = numIterations;
+  }
+
+  public Options() {
+    this(OutputFormat.GZIP, BlockSplitting.FIRST, 15);
+  }
 }
