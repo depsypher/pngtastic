@@ -27,7 +27,7 @@ public class PngtasticOptimizer {
 			+ "  --fileSuffix       string appended to the optimized files (file.png can become file.png.optimized.png)\n"
 			+ "  --removeGamma      remove gamma correction info if found\n"
 			+ "  --compressionLevel the compression level; 0-9 allowed (default is to try them all by brute force)\n"
-			+ "  --compressor       path to an alternate compressor (e.g. zopfli)\n"
+			+ "  --compressor       path to an alternate compressor (e.g. zopfli or zopfliNative)\n"
 			+ "  --iterations       number of compression iterations (useful for zopfli)\n"
 			+ "  --logLevel         the level of logging output (none, debug, info, or error)\n";
 
