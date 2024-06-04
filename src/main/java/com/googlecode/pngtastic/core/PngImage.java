@@ -84,8 +84,7 @@ public class PngImage {
 	public PngImage(InputStream ins, String logLevel) {
 		this(new Logger(logLevel));
 
-		try {
-			DataInputStream dis = new DataInputStream(ins);
+		try (DataInputStream dis = new DataInputStream(ins)) {
 			readSignature(dis);
 
 			int length;
