@@ -135,6 +135,18 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
+		<resources>
+			<resource>
+				<directory>res</directory>
+				<includes>
+					<include>macBinary</include>
+					<include>winBinary</include>
+					<include>linuxBinary</include>
+				</includes>
+			</resource>
+		</resources>
+
 	</build>
 
 	<!-- Use "mvn site" to generate reports -->
