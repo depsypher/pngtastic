@@ -77,14 +77,14 @@ public class PngOptimizerTask extends Task {
 		for (FileSet fileset : filesets) {
 			DirectoryScanner ds = fileset.getDirectoryScanner(getProject());
 			for (String src : ds.getIncludedFiles()) {
-				String inputPath = fileset.getDir() + "/" + src;
+				String inputPath = fileset.getDir() + File.separator + src;
 				String outputPath;
 				try {
 					String outputDir = (toDir == null) ? fileset.getDir().getCanonicalPath() : toDir;
-					outputPath = outputDir + "/" + src;
+					outputPath = outputDir + File.separator + src;
 
 					// make the directory this file is in (for nested dirs in a **/* fileset)
-					makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
+					makeDirs(outputPath.substring(0, outputPath.lastIndexOf(File.separator)));
 
 					PngImage image = new PngImage(inputPath, logLevel);
 					optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);

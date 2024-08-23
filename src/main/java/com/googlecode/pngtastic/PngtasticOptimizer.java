@@ -42,8 +42,8 @@ public class PngtasticOptimizer {
 
 		for (String file : fileNames) {
 			try {
-				String outputPath = toDir + "/" + file;
-				makeDirs(outputPath.substring(0, outputPath.lastIndexOf('/')));
+				String outputPath = toDir + File.separator + file;
+				makeDirs(outputPath.substring(0, outputPath.lastIndexOf(File.separator)));
 
 				PngImage image = new PngImage(file, logLevel);
 				optimizer.optimize(image, outputPath + fileSuffix, removeGamma, compressionLevel);

@@ -234,7 +234,7 @@ public class PngOptimizer extends PngProcessor {
 	 * Get the css containing data uris of the images processed by the optimizer
 	 */
 	public void generateDataUriCss(String dir) throws IOException {
-		final String path = (dir == null) ? "" : dir + "/";
+		final String path = (dir == null) ? "" : dir + File.separator;
 		final PrintWriter out = new PrintWriter(path + "DataUriCss.html");
 
 		try {
