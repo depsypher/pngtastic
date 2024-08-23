@@ -6,6 +6,7 @@ import com.googlecode.pngtastic.core.PngLayerer;
 import com.googlecode.pngtastic.core.PngOptimizer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class PngtasticLayerer {
 			final ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
 			baseImage.writeDataOutputStream(outputBytes);
 
-			final String file = toDir + "/" + outFile;
+			final String file = toDir + File.separator + outFile;
 			baseImage.setFileName(file);
 			baseImage.export(file, outputBytes.toByteArray());
 
